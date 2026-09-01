@@ -3,166 +3,187 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>InfoBeans Foundation - Progress Report Portal</title>
+  <title>InfoBeans Foundation - Progress & Dispatch Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
-    body { font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, sans-serif; background-color: #F0F2F6; }
+    body { font-family: 'Source Sans Pro', sans-serif; background-color: #F0F2F6; }
     .st-sidebar { background-color: #F9FBFD; border-right: 1px solid #E6EAF1; }
     .st-card { background: #FFFFFF; border-radius: 8px; border: 1px solid #E6EAF1; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
     .st-btn-red { background-color: #FF4B4B; color: white; transition: all 0.2s; }
     .st-btn-red:hover { background-color: #E03E3E; }
-    .st-btn-secondary { background-color: #FFFFFF; border: 1px solid #D5D9E2; color: #31333F; }
-    .st-btn-secondary:hover { background-color: #F8F9FA; border-color: #B4B9C4; }
+    .st-btn-sec { background-color: #FFFFFF; border: 1px solid #D5D9E2; color: #31333F; }
+    .st-btn-sec:hover { background-color: #F8F9FA; border-color: #B4B9C4; }
   </style>
 </head>
 <body class="text-[#31333F] min-h-screen flex flex-col md:flex-row">
 
-  <!-- Streamlit Exact Sidebar -->
+  <!-- Left Sidebar (Credentials + Batch File Upload) -->
   <aside class="w-full md:w-80 st-sidebar p-6 flex flex-col justify-between min-h-screen space-y-6">
     <div class="space-y-5">
       <div class="flex items-center space-x-3 pb-3 border-b border-slate-200">
         <span class="text-2xl">🎓</span>
         <div>
           <h1 class="text-lg font-bold text-slate-800 leading-tight">InfoBeans Portal</h1>
-          <p class="text-xs text-slate-400">Streamlit Deployment v2.0</p>
+          <p class="text-xs text-slate-400">Parents & College Dispatch v2.5</p>
         </div>
       </div>
 
       <!-- File Upload Widget -->
       <div class="space-y-1.5">
-        <label class="text-xs font-semibold text-slate-600">Upload Batch Excel Sheet</label>
+        <label class="text-xs font-semibold text-slate-600">Upload Multi-Batch Excel File</label>
         <div class="border border-dashed border-slate-300 hover:border-[#FF4B4B] bg-white rounded-lg p-4 text-center cursor-pointer relative transition">
           <input type="file" id="excelFile" accept=".xlsx, .xls" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onchange="handleFileSelected()" />
           <i class="fa-solid fa-cloud-arrow-up text-slate-400 text-xl mb-1"></i>
-          <p id="fileLabel" class="text-xs text-slate-500 font-medium truncate">Drag and drop file here</p>
-          <span class="text-[10px] text-slate-400">Limit 200MB • XLSX, XLS</span>
+          <p id="fileLabel" class="text-xs text-slate-500 font-medium truncate">Drag & drop workbook</p>
+          <span class="text-[10px] text-slate-400">Batch 17, Batch 18, etc.</span>
         </div>
       </div>
 
-      <!-- Configurations Widget -->
+      <!-- Global Settings -->
       <div class="space-y-3 pt-2">
-        <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider">⚙️ Settings</h3>
-        
+        <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider">⚙️ Global Settings</h3>
         <div>
           <label class="text-xs font-semibold text-slate-600">Report Month</label>
-          <input type="text" id="reportMonth" value="September 2026" class="w-full mt-1 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-700 outline-none focus:border-[#FF4B4B]" />
+          <input type="text" id="reportMonth" value="September 2026" class="w-full mt-1 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none focus:border-[#FF4B4B]" />
         </div>
-
         <div>
           <label class="text-xs font-semibold text-slate-600">Sender Gmail</label>
-          <input type="email" id="senderEmail" value="pavanipandit64@gmail.com" class="w-full mt-1 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-700 outline-none focus:border-[#FF4B4B]" />
+          <input type="email" id="senderEmail" value="pavanipandit64@gmail.com" class="w-full mt-1 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none focus:border-[#FF4B4B]" />
         </div>
-
         <div>
           <label class="text-xs font-semibold text-slate-600">Gmail App Password</label>
-          <input type="password" id="appPassword" placeholder="16-digit App Password" class="w-full mt-1 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-700 outline-none focus:border-[#FF4B4B]" />
+          <input type="password" id="appPassword" placeholder="16-character App Password" class="w-full mt-1 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none focus:border-[#FF4B4B]" />
         </div>
       </div>
     </div>
 
-    <!-- Dispatch Action -->
+    <!-- Dispatch Master Triggers -->
     <div class="space-y-2 pt-4 border-t border-slate-200">
-      <button onclick="dispatchAllReports()" id="btnBulk" disabled class="w-full st-btn-red font-semibold py-2 px-3 rounded text-xs tracking-wide shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
-        <i class="fa-solid fa-paper-plane text-xs"></i>
-        <span>Send Emails to Selected Batch</span>
+      <button onclick="dispatchToAllParents()" id="btnBulkParents" disabled class="w-full st-btn-red font-semibold py-2 px-3 rounded text-xs shadow-sm disabled:opacity-40 flex items-center justify-center space-x-2">
+        <i class="fa-solid fa-users"></i>
+        <span>Send to All Parents (Filtered)</span>
+      </button>
+
+      <button onclick="dispatchToAllColleges()" id="btnBulkColleges" disabled class="w-full st-btn-sec font-semibold py-2 px-3 rounded text-xs shadow-sm disabled:opacity-40 flex items-center justify-center space-x-2 border-slate-300 hover:border-[#FF4B4B]">
+        <i class="fa-solid fa-building-columns text-indigo-600"></i>
+        <span>Send to All Selected Colleges</span>
       </button>
       <p id="statusMsg" class="text-[11px] text-slate-500 text-center font-medium"></p>
     </div>
   </aside>
 
-  <!-- Streamlit Main Canvas -->
+  <!-- Main Canvas -->
   <main class="flex-1 p-6 md:p-10 space-y-6 max-w-7xl mx-auto w-full">
     
-    <!-- Title Section -->
-    <div class="border-b border-slate-200 pb-4">
-      <h1 class="text-3xl font-bold text-slate-900 tracking-tight">🎓 Student Progress Reporting Portal</h1>
-      <p class="text-sm text-slate-500 mt-1">Automated student assessment aggregation, performance analytics, and batch dispatch system.</p>
+    <div>
+      <h1 class="text-3xl font-bold text-slate-900 tracking-tight">🎓 Student & College Progress Portal</h1>
+      <p class="text-sm text-slate-500 mt-1">Direct individual parent emailing + consolidated college aggregation with 3rd/4th year distribution.</p>
     </div>
 
-    <!-- Streamlit Metric Cards -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <!-- KPI Metric Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
       <div class="st-card p-4">
         <p class="text-xs text-slate-500 font-semibold">Total Students</p>
         <p id="kpiTotal" class="text-2xl font-bold text-slate-800 mt-1">0</p>
       </div>
       <div class="st-card p-4">
-        <p class="text-xs text-slate-500 font-semibold">Avg Attendance</p>
-        <p id="kpiAttendance" class="text-2xl font-bold text-slate-800 mt-1">0%</p>
+        <p class="text-xs text-slate-500 font-semibold">3rd / 4th Year</p>
+        <p id="kpiYears" class="text-2xl font-bold text-indigo-600 mt-1">0 / 0</p>
       </div>
       <div class="st-card p-4">
-        <p class="text-xs text-slate-500 font-semibold">Avg Technical Score</p>
+        <p class="text-xs text-slate-500 font-semibold">Avg Attendance</p>
+        <p id="kpiAtt" class="text-2xl font-bold text-slate-800 mt-1">0%</p>
+      </div>
+      <div class="st-card p-4">
+        <p class="text-xs text-slate-500 font-semibold">Avg Technical</p>
         <p id="kpiTech" class="text-2xl font-bold text-[#FF4B4B] mt-1">0%</p>
       </div>
       <div class="st-card p-4">
-        <p class="text-xs text-slate-500 font-semibold">Avg Soft Skills Score</p>
+        <p class="text-xs text-slate-500 font-semibold">Avg Soft Skills</p>
         <p id="kpiSoft" class="text-2xl font-bold text-emerald-600 mt-1">0%</p>
       </div>
     </div>
 
-    <!-- Streamlit Filter Bar (Batch Selectbox + College Multiselect Filter) -->
+    <!-- Interactive Filters: Batch + Year + Add/Subtract Colleges -->
     <div class="st-card p-5 space-y-4">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        
-        <!-- Batch Selectbox -->
         <div>
           <label class="text-xs font-bold text-slate-600 uppercase tracking-wider">Select Batch</label>
-          <select id="batchSelect" onchange="onBatchChange()" class="w-full mt-1.5 bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:ring-1 focus:ring-[#FF4B4B]">
-            <option value="ALL">All Batches</option>
+          <select id="batchSelect" onchange="onFilterChange()" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs font-medium">
+            <option value="ALL">All Batches (Batch 17, 18, etc.)</option>
           </select>
         </div>
 
-        <!-- College Multiselect (Add/Subtract Colleges dynamically) -->
-        <div class="md:col-span-2">
-          <div class="flex justify-between items-center">
-            <label class="text-xs font-bold text-slate-600 uppercase tracking-wider">Filter / Add / Subtract Colleges</label>
-            <div class="space-x-2 text-[11px]">
-              <button onclick="selectAllColleges(true)" class="text-[#FF4B4B] hover:underline font-semibold">Select All</button>
-              <span class="text-slate-300">|</span>
-              <button onclick="selectAllColleges(false)" class="text-slate-500 hover:underline">Deselect All</button>
-            </div>
-          </div>
-          <div id="collegeTags" class="flex flex-wrap gap-1.5 mt-1.5 p-2 bg-slate-50 border border-slate-200 rounded-md min-h-[38px] max-h-24 overflow-y-auto">
-            <span class="text-xs text-slate-400 italic">Upload an Excel sheet to display colleges...</span>
-          </div>
+        <div>
+          <label class="text-xs font-bold text-slate-600 uppercase tracking-wider">Academic Year</label>
+          <select id="yearSelect" onchange="renderUI()" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs font-medium">
+            <option value="ALL">All Years (3rd & 4th Year)</option>
+            <option value="3rd Year">3rd Year Only</option>
+            <option value="4th Year">4th Year Only</option>
+          </select>
         </div>
 
+        <div>
+          <div class="flex justify-between items-center">
+            <label class="text-xs font-bold text-slate-600 uppercase tracking-wider">Filter Colleges (Add/Subtract)</label>
+            <div class="space-x-2 text-[10px]">
+              <button onclick="selectAllColleges(true)" class="text-[#FF4B4B] font-semibold">All</button>
+              <span>|</span>
+              <button onclick="selectAllColleges(false)" class="text-slate-500">None</button>
+            </div>
+          </div>
+          <div id="collegeTags" class="flex flex-wrap gap-1 mt-1 p-2 bg-slate-50 border border-slate-200 rounded min-h-[38px] max-h-20 overflow-y-auto">
+            <span class="text-xs text-slate-400 italic">Upload sheet to view colleges...</span>
+          </div>
+        </div>
       </div>
 
-      <!-- Quick Search Bar -->
-      <div class="relative pt-2 border-t border-slate-100">
-        <i class="fa-solid fa-magnifying-glass absolute left-3 top-5 text-slate-400 text-xs"></i>
-        <input type="text" id="tableSearch" oninput="renderTable()" placeholder="Search by student name or roll number..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded outline-none focus:border-[#FF4B4B]" />
+      <div class="pt-2 border-t border-slate-100 flex items-center relative">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 text-slate-400 text-xs"></i>
+        <input type="text" id="tableSearch" oninput="renderUI()" placeholder="Search by student name, roll number, or college..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded outline-none focus:border-[#FF4B4B]" />
       </div>
     </div>
 
-    <!-- Student Records Table & Download Grid -->
+    <!-- Section 1: College/TPO Dispatch & Reporting Center -->
+    <div class="st-card p-5 space-y-3">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+        <h3 class="font-bold text-sm text-slate-800"><i class="fa-solid fa-building-columns text-indigo-600 mr-2"></i>College / TPO Consolidated Center</h3>
+        <span class="text-xs text-slate-400">PDF Summary & Excel Sheet per Institution</span>
+      </div>
+      <div id="collegeCardsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <p class="text-xs text-slate-400 col-span-2 py-3 text-center">Upload an Excel sheet to view individual college cards.</p>
+      </div>
+    </div>
+
+    <!-- Section 2: Individual Students Table & Parent Dispatch -->
     <div class="st-card overflow-hidden">
-      <div class="px-5 py-3.5 border-b border-slate-100 flex justify-between items-center">
-        <h3 class="font-bold text-sm text-slate-800">Student Progress Matrix</h3>
-        <span id="recordCount" class="text-xs text-slate-400 font-medium">0 records shown</span>
+      <div class="px-5 py-3 border-b border-slate-100 flex justify-between items-center">
+        <h3 class="font-bold text-sm text-slate-800"><i class="fa-solid fa-user-graduate text-[#FF4B4B] mr-2"></i>Individual Students & Parent Dispatch</h3>
+        <span id="recordCount" class="text-xs text-slate-400 font-medium">0 records</span>
       </div>
 
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
           <thead class="bg-[#F9FBFD] text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-200">
             <tr>
-              <th class="px-5 py-3">Roll No</th>
-              <th class="px-5 py-3">Student Name</th>
-              <th class="px-5 py-3">College Name</th>
-              <th class="px-5 py-3 text-center">Batch</th>
-              <th class="px-5 py-3 text-center">Classes Attended</th>
-              <th class="px-5 py-3 text-center">Tech Marks</th>
-              <th class="px-5 py-3 text-center">Soft Skills</th>
-              <th class="px-5 py-3 text-center">Overall</th>
-              <th class="px-5 py-3 text-right">Actions</th>
+              <th class="px-4 py-3">Roll No</th>
+              <th class="px-4 py-3">Student Name</th>
+              <th class="px-4 py-3">College</th>
+              <th class="px-4 py-3 text-center">Year</th>
+              <th class="px-4 py-3 text-center">Batch</th>
+              <th class="px-4 py-3 text-center">Attendance</th>
+              <th class="px-4 py-3 text-center">Tech %</th>
+              <th class="px-4 py-3 text-center">Soft Skills %</th>
+              <th class="px-4 py-3 text-center">Overall</th>
+              <th class="px-4 py-3 text-right">Individual Parent Action</th>
             </tr>
           </thead>
           <tbody id="tableBody" class="divide-y divide-slate-100">
             <tr>
-              <td colspan="9" class="px-5 py-12 text-center text-slate-400">
-                Please upload your batch workbook from the left sidebar to render records.
+              <td colspan="10" class="px-4 py-12 text-center text-slate-400">
+                Upload your multi-batch workbook from the sidebar to display records.
               </td>
             </tr>
           </tbody>
@@ -180,7 +201,7 @@
       const file = document.getElementById('excelFile').files[0];
       if (!file) return;
       document.getElementById('fileLabel').innerText = file.name;
-      document.getElementById('statusMsg').innerText = "Processing workbook...";
+      document.getElementById('statusMsg').innerText = "Processing batches...";
 
       const formData = new FormData();
       formData.append('file', file);
@@ -190,16 +211,17 @@
         const data = await res.json();
         if (data.students) {
           rawStudents = data.students;
-          document.getElementById('btnBulk').disabled = false;
+          document.getElementById('btnBulkParents').disabled = false;
+          document.getElementById('btnBulkColleges').disabled = false;
           document.getElementById('statusMsg').innerText = `${rawStudents.length} students loaded.`;
           populateBatches();
           populateColleges();
-          renderTable();
+          renderUI();
         } else {
-          alert("Error: " + (data.error || "Failed to parse excel"));
+          alert("Error: " + (data.error || "Failed to parse file"));
         }
       } catch (e) {
-        alert("Server request failed: " + e);
+        alert("Server error: " + e);
       }
     }
 
@@ -210,10 +232,9 @@
     }
 
     function populateColleges() {
-      const activeBatch = document.getElementById('batchSelect').value;
-      const filtered = (activeBatch === 'ALL') ? rawStudents : rawStudents.filter(s => s.Batch === activeBatch);
-      const colleges = [...new Set(filtered.map(s => s.CollegeName || 'Unknown College'))].sort();
-      
+      const batch = document.getElementById('batchSelect').value;
+      const list = (batch === 'ALL') ? rawStudents : rawStudents.filter(s => s.Batch === batch);
+      const colleges = [...new Set(list.map(s => s.CollegeName || 'Unknown College'))].sort();
       selectedColleges = new Set(colleges);
       renderCollegeTags(colleges);
     }
@@ -221,175 +242,278 @@
     function renderCollegeTags(colleges) {
       const container = document.getElementById('collegeTags');
       container.innerHTML = colleges.map(c => `
-        <label class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-medium cursor-pointer transition ${selectedColleges.has(c) ? 'bg-[#FF4B4B]/10 text-[#FF4B4B] border border-[#FF4B4B]/30' : 'bg-white text-slate-400 border border-slate-200'}">
+        <label class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-medium cursor-pointer ${selectedColleges.has(c) ? 'bg-[#FF4B4B]/10 text-[#FF4B4B] border border-[#FF4B4B]/30' : 'bg-white text-slate-400 border border-slate-200'}">
           <input type="checkbox" ${selectedColleges.has(c) ? 'checked' : ''} onchange="toggleCollege('${c}')" class="hidden" />
           <span>${c}</span>
         </label>
       `).join('');
     }
 
-    function toggleCollege(college) {
-      if (selectedColleges.has(college)) {
-        selectedColleges.delete(college);
-      } else {
-        selectedColleges.add(college);
-      }
-      populateCollegesUIOnly();
-      renderTable();
+    function toggleCollege(c) {
+      if (selectedColleges.has(c)) selectedColleges.delete(c);
+      else selectedColleges.add(c);
+      populateCollegesOnly();
+      renderUI();
     }
 
-    function selectAllColleges(select) {
-      const activeBatch = document.getElementById('batchSelect').value;
-      const filtered = (activeBatch === 'ALL') ? rawStudents : rawStudents.filter(s => s.Batch === activeBatch);
-      const colleges = [...new Set(filtered.map(s => s.CollegeName || 'Unknown College'))];
-      
-      selectedColleges = select ? new Set(colleges) : new Set();
-      populateCollegesUIOnly();
-      renderTable();
+    function selectAllColleges(val) {
+      const batch = document.getElementById('batchSelect').value;
+      const list = (batch === 'ALL') ? rawStudents : rawStudents.filter(s => s.Batch === batch);
+      const colleges = [...new Set(list.map(s => s.CollegeName || 'Unknown College'))];
+      selectedColleges = val ? new Set(colleges) : new Set();
+      populateCollegesOnly();
+      renderUI();
     }
 
-    function populateCollegesUIOnly() {
-      const activeBatch = document.getElementById('batchSelect').value;
-      const filtered = (activeBatch === 'ALL') ? rawStudents : rawStudents.filter(s => s.Batch === activeBatch);
-      const colleges = [...new Set(filtered.map(s => s.CollegeName || 'Unknown College'))].sort();
-      renderCollegeTags(colleges);
+    function populateCollegesOnly() {
+      const batch = document.getElementById('batchSelect').value;
+      const list = (batch === 'ALL') ? rawStudents : rawStudents.filter(s => s.Batch === batch);
+      renderCollegeTags([...new Set(list.map(s => s.CollegeName || 'Unknown College'))].sort());
     }
 
-    function onBatchChange() {
+    function onFilterChange() {
       populateColleges();
-      renderTable();
+      renderUI();
     }
 
     function getFilteredRecords() {
-      const activeBatch = document.getElementById('batchSelect').value;
+      const batch = document.getElementById('batchSelect').value;
+      const year = document.getElementById('yearSelect').value;
       const query = document.getElementById('tableSearch').value.toLowerCase();
 
       return rawStudents.filter(s => {
-        const matchesBatch = (activeBatch === 'ALL' || s.Batch === activeBatch);
-        const matchesCollege = selectedColleges.has(s.CollegeName || 'Unknown College');
-        const matchesQuery = s.StudentName.toLowerCase().includes(query) || s.RollNo.toLowerCase().includes(query) || (s.CollegeName && s.CollegeName.toLowerCase().includes(query));
-        return matchesBatch && matchesCollege && matchesQuery;
+        const mBatch = (batch === 'ALL' || s.Batch === batch);
+        const mYear = (year === 'ALL' || s.Year === year);
+        const mCollege = selectedColleges.has(s.CollegeName || 'Unknown College');
+        const mSearch = s.StudentName.toLowerCase().includes(query) || s.RollNo.toLowerCase().includes(query) || s.CollegeName.toLowerCase().includes(query);
+        return mBatch && mYear && mCollege && mSearch;
       });
     }
 
-    function renderTable() {
+    function renderUI() {
       const list = getFilteredRecords();
-      document.getElementById('recordCount').innerText = `${list.length} records shown`;
+      document.getElementById('recordCount').innerText = `${list.length} students found`;
 
-      // Update KPI metrics
+      // Update KPI Cards
       if (list.length > 0) {
         document.getElementById('kpiTotal').innerText = list.length;
-        document.getElementById('kpiAttendance').innerText = `${(list.reduce((a, s) => a + (s.AttendancePct || 0), 0) / list.length).toFixed(1)}%`;
-        document.getElementById('kpiTech').innerText = `${(list.reduce((a, s) => a + (s.TechnicalPct || 0), 0) / list.length).toFixed(1)}%`;
-        document.getElementById('kpiSoft').innerText = `${(list.reduce((a, s) => a + (s.SoftSkillsPct || 0), 0) / list.length).toFixed(1)}%`;
+        const y3 = list.filter(s => s.Year.includes('3')).length;
+        const y4 = list.filter(s => s.Year.includes('4')).length;
+        document.getElementById('kpiYears').innerText = `${y3} / ${y4}`;
+        document.getElementById('kpiAtt').innerText = `${(list.reduce((a,s) => a + s.AttendancePct, 0) / list.length).toFixed(1)}%`;
+        document.getElementById('kpiTech').innerText = `${(list.reduce((a,s) => a + s.TechnicalPct, 0) / list.length).toFixed(1)}%`;
+        document.getElementById('kpiSoft').innerText = `${(list.reduce((a,s) => a + s.SoftSkillsPct, 0) / list.length).toFixed(1)}%`;
       } else {
         document.getElementById('kpiTotal').innerText = '0';
-        document.getElementById('kpiAttendance').innerText = '0%';
+        document.getElementById('kpiYears').innerText = '0 / 0';
+        document.getElementById('kpiAtt').innerText = '0%';
         document.getElementById('kpiTech').innerText = '0%';
         document.getElementById('kpiSoft').innerText = '0%';
       }
 
+      renderCollegeCards(list);
+      renderStudentsTable(list);
+    }
+
+    // Render Individual College Blocks
+    function renderCollegeCards(list) {
+      const container = document.getElementById('collegeCardsContainer');
+      const uniqueColleges = [...new Set(list.map(s => s.CollegeName))];
+
+      if (uniqueColleges.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 col-span-2 py-3 text-center">No colleges in current filter.</p>`;
+        return;
+      }
+
+      container.innerHTML = uniqueColleges.map(college => {
+        const colStudents = list.filter(s => s.CollegeName === college);
+        const y3 = colStudents.filter(s => s.Year.includes('3')).length;
+        const y4 = colStudents.filter(s => s.Year.includes('4')).length;
+        const tpoEmail = colStudents.find(s => s.CollegeEmail)?.CollegeEmail || 'pavanipandit64@gmail.com';
+
+        return `
+          <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50 flex flex-col justify-between space-y-2">
+            <div>
+              <div class="flex justify-between items-start">
+                <h4 class="font-bold text-xs text-slate-800 truncate">${college}</h4>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700">${colStudents.length} Students</span>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-1">3rd Year: <b>${y3}</b> | 4th Year: <b>${y4}</b> | TPO: <span class="font-mono text-slate-600">${tpoEmail}</span></p>
+            </div>
+            
+            <div class="flex items-center space-x-1.5 pt-2 border-t border-slate-200">
+              <button onclick="downloadCollegeSinglePDF('${college}')" class="st-btn-sec flex-1 py-1 rounded text-[11px] font-semibold flex items-center justify-center space-x-1">
+                <i class="fa-solid fa-file-pdf text-red-500"></i><span>PDF Report</span>
+              </button>
+              <button onclick="downloadCollegeSingleExcel('${college}')" class="st-btn-sec flex-1 py-1 rounded text-[11px] font-semibold flex items-center justify-center space-x-1">
+                <i class="fa-solid fa-file-excel text-emerald-600"></i><span>Excel Sheet</span>
+              </button>
+              <button onclick="sendSingleCollegeEmail('${college}', '${tpoEmail}')" class="st-btn-red py-1 px-3 rounded text-[11px] font-semibold">
+                Send to TPO
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Render Student Table Rows
+    function renderStudentsTable(list) {
       const tbody = document.getElementById('tableBody');
       if (list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="px-5 py-8 text-center text-slate-400">No matching student records found for selected batch & colleges.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="px-4 py-8 text-center text-slate-400">No records matching selected Batch, Year, or College filters.</td></tr>`;
         return;
       }
 
       tbody.innerHTML = list.map(s => {
-        const originalIndex = rawStudents.findIndex(x => x.id === s.id);
+        const origIdx = rawStudents.findIndex(x => x.id === s.id);
         return `
           <tr class="hover:bg-[#F9FBFD] transition">
-            <td class="px-5 py-3 font-mono font-bold text-slate-700">${s.RollNo}</td>
-            <td class="px-5 py-3">
+            <td class="px-4 py-3 font-mono font-bold text-slate-700">${s.RollNo}</td>
+            <td class="px-4 py-3">
               <div class="font-bold text-slate-800">${s.StudentName}</div>
-              <div class="text-[10px] text-slate-400 truncate">${s.ParentEmail || 'No Email Registered'}</div>
+              <div class="text-[10px] text-slate-400 truncate">${s.ParentEmail || 'No Parent Email'}</div>
             </td>
-            <td class="px-5 py-3 text-slate-600 font-medium">${s.CollegeName || '-'}</td>
-            <td class="px-5 py-3 text-center">
-              <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold text-[10px]">${s.Batch}</span>
-            </td>
-            <td class="px-5 py-3 text-center font-medium">
-              ${s.AttendedClasses}/${s.TotalClasses}
-              <span class="text-[10px] text-slate-400 block font-normal">${s.AttendancePct}%</span>
-            </td>
-            <td class="px-5 py-3 text-center font-bold text-slate-700">
-              ${s.TechnicalMarks}
-              <span class="text-[10px] text-[#FF4B4B] block font-normal">${s.TechnicalPct}%</span>
-            </td>
-            <td class="px-5 py-3 text-center font-bold text-slate-700">
-              ${s.SoftSkillsMarks}
-              <span class="text-[10px] text-emerald-600 block font-normal">${s.SoftSkillsPct}%</span>
-            </td>
-            <td class="px-5 py-3 text-center font-bold text-[#FF4B4B]">
-              ${s.OverallScore}%
-            </td>
-            <td class="px-5 py-3 text-right space-x-1 whitespace-nowrap">
-              <button onclick="downloadSinglePdf(${originalIndex})" class="st-btn-secondary px-2 py-1 rounded text-[11px] font-semibold">
-                <i class="fa-solid fa-download mr-1"></i>PDF
-              </button>
-              <button onclick="sendSingleEmail(${originalIndex})" class="st-btn-red px-2.5 py-1 rounded text-[11px] font-semibold">
-                Send
-              </button>
+            <td class="px-4 py-3 text-slate-600 font-medium">${s.CollegeName}</td>
+            <td class="px-4 py-3 text-center"><span class="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-bold text-[10px]">${s.Year}</span></td>
+            <td class="px-4 py-3 text-center"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold text-[10px]">${s.Batch}</span></td>
+            <td class="px-4 py-3 text-center font-medium">${s.AttendedClasses}/${s.TotalClasses} <span class="text-[10px] text-slate-400 block">${s.AttendancePct}%</span></td>
+            <td class="px-4 py-3 text-center font-bold text-slate-700">${s.TechnicalMarks} <span class="text-[10px] text-[#FF4B4B] block font-normal">${s.TechnicalPct}%</span></td>
+            <td class="px-4 py-3 text-center font-bold text-slate-700">${s.SoftSkillsMarks} <span class="text-[10px] text-emerald-600 block font-normal">${s.SoftSkillsPct}%</span></td>
+            <td class="px-4 py-3 text-center font-bold text-[#FF4B4B]">${s.OverallScore}%</td>
+            <td class="px-4 py-3 text-right space-x-1 whitespace-nowrap">
+              <button onclick="downloadIndividualPdf(${origIdx})" class="st-btn-sec px-2 py-1 rounded text-[11px] font-semibold"><i class="fa-solid fa-download mr-1"></i>PDF</button>
+              <button onclick="sendSingleParentEmail(${origIdx})" class="st-btn-red px-2.5 py-1 rounded text-[11px] font-semibold">Send to Parent</button>
             </td>
           </tr>
         `;
       }).join('');
     }
 
-    async function downloadSinglePdf(idx) {
+    // --- Actions: Individual Parent & All Parents ---
+    async function downloadIndividualPdf(idx) {
       const student = rawStudents[idx];
       student.ReportMonth = document.getElementById('reportMonth').value || 'September 2026';
-
       const res = await fetch('/api/download-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(student)
       });
       const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
+      a.href = window.URL.createObjectURL(blob);
       a.download = `${student.RollNo}_Report.pdf`;
       a.click();
     }
 
-    async function sendSingleEmail(idx) {
+    async function sendSingleParentEmail(idx) {
       const student = rawStudents[idx];
       const sender_email = document.getElementById('senderEmail').value;
       const app_password = document.getElementById('appPassword').value;
-      const report_month = document.getElementById('reportMonth').value;
-
-      if (!sender_email || !app_password) return alert('Enter Sender Gmail & App Password on Sidebar');
+      if (!sender_email || !app_pwd_check(app_password)) return;
 
       const res = await fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ student, config: { sender_email, app_password, report_month } })
+        body: JSON.stringify({ student, config: { sender_email, app_password } })
       });
       const data = await res.json();
-      if (data.success) alert(`Success: Dispatched to ${student.ParentEmail}`);
+      if (data.success) alert(`Report sent to parent: ${student.ParentEmail}`);
       else alert('Failed: ' + data.error);
     }
 
-    async function dispatchAllReports() {
+    async function dispatchToAllParents() {
       const list = getFilteredRecords();
       const sender_email = document.getElementById('senderEmail').value;
       const app_password = document.getElementById('appPassword').value;
-      const report_month = document.getElementById('reportMonth').value;
-
-      if (!sender_email || !app_password) return alert('Enter Sender Gmail & App Password on Sidebar');
-      if (!confirm(`Are you sure you want to dispatch reports to ${list.length} students?`)) return;
+      if (!sender_email || !app_pwd_check(app_password)) return;
+      if (!confirm(`Dispatch individual PDF reports to ${list.length} parents?`)) return;
 
       for (let i = 0; i < list.length; i++) {
-        document.getElementById('statusMsg').innerText = `Sending ${i+1}/${list.length}...`;
+        document.getElementById('statusMsg').innerText = `Sending parent ${i+1}/${list.length}...`;
         await fetch('/api/send-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ student: list[i], config: { sender_email, app_password, report_month } })
+          body: JSON.stringify({ student: list[i], config: { sender_email, app_password } })
         });
       }
-      document.getElementById('statusMsg').innerText = "All reports sent successfully!";
-      alert('Batch dispatch execution finished!');
+      document.getElementById('statusMsg').innerText = "All parent emails dispatched!";
+      alert("All parent reports sent successfully!");
+    }
+
+    // --- Actions: Individual College & All Colleges ---
+    async function downloadCollegeSinglePDF(college) {
+      const students = getFilteredRecords().filter(s => s.CollegeName === college);
+      const res = await fetch('/api/download-college-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ college, students })
+      });
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = window.URL.createObjectURL(blob);
+      a.download = `${college.replace(/ /g, '_')}_Consolidated_Report.pdf`;
+      a.click();
+    }
+
+    async function downloadCollegeSingleExcel(college) {
+      const students = getFilteredRecords().filter(s => s.CollegeName === college);
+      const res = await fetch('/api/download-college-excel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ college, students })
+      });
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = window.URL.createObjectURL(blob);
+      a.download = `${college.replace(/ /g, '_')}_Student_Records.xlsx`;
+      a.click();
+    }
+
+    async function sendSingleCollegeEmail(college, college_email) {
+      const sender_email = document.getElementById('senderEmail').value;
+      const app_password = document.getElementById('appPassword').value;
+      if (!sender_email || !app_pwd_check(app_password)) return;
+
+      const students = getFilteredRecords().filter(s => s.CollegeName === college);
+      const res = await fetch('/api/send-college-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ college, college_email, students, config: { sender_email, app_password } })
+      });
+      const data = await res.json();
+      if (data.success) alert(`Consolidated PDF + Excel sent to ${college} (${college_email})`);
+      else alert('Failed: ' + data.error);
+    }
+
+    async function dispatchToAllColleges() {
+      const list = getFilteredRecords();
+      const uniqueColleges = [...new Set(list.map(s => s.CollegeName))];
+      const sender_email = document.getElementById('senderEmail').value;
+      const app_password = document.getElementById('appPassword').value;
+      if (!sender_email || !app_pwd_check(app_password)) return;
+
+      if (!confirm(`Dispatch Consolidated PDF + Excel sheets to all ${uniqueColleges.length} selected colleges?`)) return;
+
+      for (let i = 0; i < uniqueColleges.length; i++) {
+        const col = uniqueColleges[i];
+        const colStudents = list.filter(s => s.CollegeName === col);
+        const tpoEmail = colStudents.find(s => s.CollegeEmail)?.CollegeEmail || 'pavanipandit64@gmail.com';
+
+        document.getElementById('statusMsg').innerText = `Sending college ${i+1}/${uniqueColleges.length}...`;
+        await fetch('/api/send-college-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ college: col, college_email: tpoEmail, students: colStudents, config: { sender_email, app_password } })
+        });
+      }
+      document.getElementById('statusMsg').innerText = "All college reports dispatched!";
+      alert("All college dispatches completed successfully!");
+    }
+
+    function app_pwd_check(pwd) {
+      if (!pwd) { alert('Please enter your 16-digit Gmail App Password in the sidebar.'); return false; }
+      return true;
     }
   </script>
 </body>
