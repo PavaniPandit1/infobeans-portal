@@ -6,89 +6,144 @@
   <title>InfoBeans Foundation - Progress & Dispatch Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
-    body { font-family: 'Source Sans Pro', sans-serif; background-color: #F0F2F6; }
-    .st-sidebar { background-color: #F9FBFD; border-right: 1px solid #E6EAF1; }
-    .st-card { background: #FFFFFF; border-radius: 8px; border: 1px solid #E6EAF1; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
-    .st-btn-red { background-color: #FF4B4B; color: white; transition: all 0.2s; }
-    .st-btn-red:hover { background-color: #E03E3E; }
-    .st-btn-sec { background-color: #FFFFFF; border: 1px solid #D5D9E2; color: #31333F; }
-    .st-btn-sec:hover { background-color: #F8F9FA; border-color: #B4B9C4; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #F8FAFC;
+      color: #1E293B;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3, h4 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .font-mono-data {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .st-sidebar {
+      background-color: #FFFFFF;
+      border-right: 1px solid #E2E8F0;
+    }
+    .st-card {
+      background: #FFFFFF;
+      border-radius: 12px;
+      border: 1px solid #E2E8F0;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    }
+    .st-btn-red {
+      background-color: #EA1B3D;
+      color: #FFFFFF;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .st-btn-red:hover {
+      background-color: #D01433;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(234, 27, 61, 0.25);
+    }
+    .st-btn-sec {
+      background-color: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #334155;
+      transition: all 0.15s ease-in-out;
+    }
+    .st-btn-sec:hover {
+      background-color: #F1F5F9;
+      border-color: #94A3B8;
+      color: #0F172A;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
   </style>
 </head>
-<body class="text-[#31333F] min-h-screen flex flex-col md:flex-row">
+<body class="min-h-screen flex flex-col md:flex-row">
 
-  <!-- Left Sidebar (Credentials + Batch File Upload) -->
-  <aside class="w-full md:w-80 st-sidebar p-6 flex flex-col justify-start min-h-screen space-y-6">
-    <div class="space-y-5">
-      <div class="flex items-center space-x-3 pb-3 border-b border-slate-200">
-        <span class="text-2xl">🎓</span>
+  <!-- Sidebar -->
+  <aside class="w-full md:w-80 st-sidebar p-6 flex flex-col justify-start min-h-screen space-y-6 shrink-0">
+    <div class="space-y-6">
+      
+      <!-- Brand Title -->
+      <div class="flex items-center space-x-3 pb-4 border-b border-slate-100">
+        <div class="w-10 h-10 rounded-xl bg-red-50 text-[#EA1B3D] flex items-center justify-center text-xl shadow-inner font-bold">
+          🎓
+        </div>
         <div>
-          <h1 class="text-lg font-bold text-slate-800 leading-tight">InfoBeans Portal</h1>
-          <p class="text-xs text-slate-400">Dispatch Dashboard v3.0</p>
+          <h1 class="text-base font-extrabold text-slate-900 tracking-tight leading-none">InfoBeans Portal</h1>
+          <p class="text-xs text-slate-400 font-medium mt-1">Multi-College System 2026</p>
         </div>
       </div>
 
-      <!-- File Upload Widget -->
-      <div class="space-y-1.5">
-        <label class="text-xs font-semibold text-slate-600">Upload Multi-Batch Excel File</label>
-        <div class="border border-dashed border-slate-300 hover:border-[#FF4B4B] bg-white rounded-lg p-4 text-center cursor-pointer relative transition">
+      <!-- File Upload Box -->
+      <div class="space-y-2">
+        <label class="text-xs font-bold uppercase tracking-wider text-slate-500">Upload Excel Workbook</label>
+        <div class="border-2 border-dashed border-slate-200 hover:border-[#EA1B3D] bg-slate-50/60 hover:bg-red-50/20 rounded-xl p-5 text-center cursor-pointer relative transition-all group">
           <input type="file" id="excelFile" accept=".xlsx, .xls" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onchange="handleFileSelected()" />
-          <i class="fa-solid fa-cloud-arrow-up text-slate-400 text-xl mb-1"></i>
-          <p id="fileLabel" class="text-xs text-slate-500 font-medium truncate">Drag & drop workbook</p>
-          <span class="text-[10px] text-slate-400">Batch 17, Batch 18, etc.</span>
+          <i class="fa-solid fa-cloud-arrow-up text-slate-400 group-hover:text-[#EA1B3D] text-2xl mb-1.5 transition-colors"></i>
+          <p id="fileLabel" class="text-xs text-slate-700 font-semibold truncate px-1">Drop file or click to browse</p>
+          <span class="text-[11px] text-slate-400 block mt-0.5 font-medium">Batch 17, 18, etc. (.xlsx)</span>
         </div>
       </div>
 
       <!-- Global Settings -->
-      <div class="space-y-3 pt-2">
-        <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider">⚙️ Email Credentials</h3>
+      <div class="space-y-3.5 pt-1">
+        <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider">⚙️ Credentials & Context</h3>
+        
         <div>
-          <label class="text-xs font-semibold text-slate-600">Report Month</label>
-          <input type="text" id="reportMonth" value="September 2026" class="w-full mt-1 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none focus:border-[#FF4B4B]" />
+          <label class="text-xs font-semibold text-slate-600">Evaluation Month</label>
+          <input type="text" id="reportMonth" value="September 2026" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-[#EA1B3D] focus:bg-white focus:ring-1 focus:ring-[#EA1B3D] transition" />
         </div>
+
         <div>
-          <label class="text-xs font-semibold text-slate-600">Sender Gmail</label>
-          <input type="email" id="senderEmail" value="pavanipandit64@gmail.com" class="w-full mt-1 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none focus:border-[#FF4B4B]" />
+          <label class="text-xs font-semibold text-slate-600">Sender Gmail Address</label>
+          <input type="email" id="senderEmail" value="pavanipandit64@gmail.com" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-[#EA1B3D] focus:bg-white focus:ring-1 focus:ring-[#EA1B3D] transition" />
         </div>
+
         <div>
-          <label class="text-xs font-semibold text-slate-600">Gmail App Password</label>
-          <input type="password" id="appPassword" placeholder="16-character App Password" class="w-full mt-1 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none focus:border-[#FF4B4B]" />
+          <label class="text-xs font-semibold text-slate-600">16-Digit App Password</label>
+          <input type="password" id="appPassword" placeholder="•••• •••• •••• ••••" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono-data text-slate-800 outline-none focus:border-[#EA1B3D] focus:bg-white focus:ring-1 focus:ring-[#EA1B3D] transition" />
         </div>
       </div>
+
     </div>
   </aside>
 
   <!-- Main Canvas -->
-  <main class="flex-1 p-6 md:p-8 space-y-5 max-w-7xl mx-auto w-full">
+  <main class="flex-1 p-6 md:p-8 space-y-6 max-w-7xl mx-auto w-full">
     
-    <!-- Title -->
-    <div>
-      <h1 class="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">🎓 Student & College Progress Portal</h1>
-      <p class="text-xs md:text-sm text-slate-500 mt-0.5">Automated batch dispatch to parents and consolidated college reports.</p>
+    <!-- Title Section -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-200/80 pb-4">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">Student & College Evaluation Hub</h1>
+        <p class="text-xs md:text-sm text-slate-500 font-normal mt-1">Multi-batch consolidation, 3rd & 4th year categorization, and auto-dispatched parent reporting.</p>
+      </div>
     </div>
 
-    <!-- TOP MASTER DISPATCH BAR (Direct at the Top) -->
-    <div class="st-card p-4 bg-gradient-to-r from-red-50/50 via-white to-indigo-50/50 border-slate-200">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+    <!-- TOP PROMINENT DISPATCH CONTROL BAR -->
+    <div class="st-card p-5 bg-gradient-to-r from-red-50/60 via-white to-slate-50/80 border-slate-200/90 shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 class="text-sm font-bold text-slate-800 flex items-center">
-            <span class="inline-block w-2.5 h-2.5 bg-red-500 rounded-full mr-2 animate-pulse"></span>
-            🚀 Quick Batch Dispatch Controls
+          <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#EA1B3D] animate-ping"></span>
+            Master Dispatch Operations
           </h2>
-          <p id="statusMsg" class="text-xs text-slate-500 mt-0.5">Upload workbook from the sidebar to activate bulk dispatch.</p>
+          <p id="statusMsg" class="text-xs text-slate-500 mt-1 font-medium">Upload batch file from sidebar to unlock automated bulk sending.</p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2">
-          <!-- SEND TO ALL PARENTS BUTTON -->
-          <button onclick="dispatchToAllParents()" id="btnBulkParents" disabled class="st-btn-red font-bold py-2 px-4 rounded text-xs shadow disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-2">
+        <div class="flex flex-wrap items-center gap-2.5">
+          <button onclick="dispatchToAllParents()" id="btnBulkParents" disabled class="st-btn-red font-bold py-2.5 px-4 rounded-lg text-xs tracking-wide shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-2">
             <i class="fa-solid fa-paper-plane text-xs"></i>
             <span>Send to All Parents (Filtered)</span>
           </button>
 
-          <!-- SEND TO ALL COLLEGES BUTTON -->
-          <button onclick="dispatchToAllColleges()" id="btnBulkColleges" disabled class="st-btn-sec font-bold py-2 px-4 rounded text-xs shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-2 border-indigo-200 hover:border-indigo-400 text-indigo-700">
+          <button onclick="dispatchToAllColleges()" id="btnBulkColleges" disabled class="st-btn-sec font-bold py-2.5 px-4 rounded-lg text-xs tracking-wide shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-2 border-slate-300 hover:border-indigo-400 text-indigo-700">
             <i class="fa-solid fa-building-columns text-indigo-600"></i>
             <span>Send to All Selected Colleges</span>
           </button>
@@ -96,44 +151,45 @@
       </div>
     </div>
 
-    <!-- KPI Metric Cards -->
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-      <div class="st-card p-3.5">
-        <p class="text-xs text-slate-500 font-semibold">Total Students</p>
-        <p id="kpiTotal" class="text-2xl font-bold text-slate-800 mt-0.5">0</p>
+    <!-- Metric Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3.5">
+      <div class="st-card p-4">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Enrolled</p>
+        <p id="kpiTotal" class="text-2xl font-black text-slate-900 mt-1 font-mono-data">0</p>
       </div>
-      <div class="st-card p-3.5">
-        <p class="text-xs text-slate-500 font-semibold">3rd / 4th Year</p>
-        <p id="kpiYears" class="text-2xl font-bold text-indigo-600 mt-0.5">0 / 0</p>
+      <div class="st-card p-4">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">3rd / 4th Year</p>
+        <p id="kpiYears" class="text-2xl font-black text-indigo-600 mt-1 font-mono-data">0 / 0</p>
       </div>
-      <div class="st-card p-3.5">
-        <p class="text-xs text-slate-500 font-semibold">Avg Attendance</p>
-        <p id="kpiAtt" class="text-2xl font-bold text-slate-800 mt-0.5">0%</p>
+      <div class="st-card p-4">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Avg Attendance</p>
+        <p id="kpiAtt" class="text-2xl font-black text-slate-800 mt-1 font-mono-data">0%</p>
       </div>
-      <div class="st-card p-3.5">
-        <p class="text-xs text-slate-500 font-semibold">Avg Technical</p>
-        <p id="kpiTech" class="text-2xl font-bold text-[#FF4B4B] mt-0.5">0%</p>
+      <div class="st-card p-4">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Avg Technical</p>
+        <p id="kpiTech" class="text-2xl font-black text-[#EA1B3D] mt-1 font-mono-data">0%</p>
       </div>
-      <div class="st-card p-3.5">
-        <p class="text-xs text-slate-500 font-semibold">Avg Soft Skills</p>
-        <p id="kpiSoft" class="text-2xl font-bold text-emerald-600 mt-0.5">0%</p>
+      <div class="st-card p-4">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Avg Soft Skills</p>
+        <p id="kpiSoft" class="text-2xl font-black text-emerald-600 mt-1 font-mono-data">0%</p>
       </div>
     </div>
 
-    <!-- Interactive Filters: Batch + Year + Colleges -->
-    <div class="st-card p-4 space-y-3">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+    <!-- Filter Bar -->
+    <div class="st-card p-4 md:p-5 space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
         <div>
-          <label class="text-xs font-bold text-slate-600 uppercase tracking-wider">Select Batch</label>
-          <select id="batchSelect" onchange="onFilterChange()" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 text-xs font-medium">
-            <option value="ALL">All Batches (Batch 17, 18, etc.)</option>
+          <label class="text-xs font-bold uppercase tracking-wider text-slate-600">Select Batch</label>
+          <select id="batchSelect" onchange="onFilterChange()" class="w-full mt-1.5 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-[#EA1B3D] focus:bg-white">
+            <option value="ALL">All Batches (Batch 17, Batch 18, etc.)</option>
           </select>
         </div>
 
         <div>
-          <label class="text-xs font-bold text-slate-600 uppercase tracking-wider">Academic Year</label>
-          <select id="yearSelect" onchange="renderUI()" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 text-xs font-medium">
-            <option value="ALL">All Years (3rd & 4th Year)</option>
+          <label class="text-xs font-bold uppercase tracking-wider text-slate-600">Academic Year</label>
+          <select id="yearSelect" onchange="renderUI()" class="w-full mt-1.5 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-[#EA1B3D] focus:bg-white">
+            <option value="ALL">All Academic Years</option>
             <option value="3rd Year">3rd Year Only</option>
             <option value="4th Year">4th Year Only</option>
           </select>
@@ -141,63 +197,71 @@
 
         <div>
           <div class="flex justify-between items-center">
-            <label class="text-xs font-bold text-slate-600 uppercase tracking-wider">Filter Colleges (Add/Subtract)</label>
-            <div class="space-x-2 text-[10px]">
-              <button onclick="selectAllColleges(true)" class="text-[#FF4B4B] font-semibold">All</button>
-              <span>|</span>
-              <button onclick="selectAllColleges(false)" class="text-slate-500">None</button>
+            <label class="text-xs font-bold uppercase tracking-wider text-slate-600">Colleges (Add/Subtract)</label>
+            <div class="space-x-2 text-[11px]">
+              <button onclick="selectAllColleges(true)" class="text-[#EA1B3D] hover:underline font-bold">Select All</button>
+              <span class="text-slate-300">|</span>
+              <button onclick="selectAllColleges(false)" class="text-slate-500 hover:underline font-medium">Clear</button>
             </div>
           </div>
-          <div id="collegeTags" class="flex flex-wrap gap-1 mt-1 p-1.5 bg-slate-50 border border-slate-200 rounded min-h-[34px] max-h-20 overflow-y-auto">
-            <span class="text-xs text-slate-400 italic">Upload sheet to view colleges...</span>
+          <div id="collegeTags" class="flex flex-wrap gap-1.5 mt-1.5 p-2 bg-slate-50 border border-slate-200 rounded-lg min-h-[38px] max-h-24 overflow-y-auto custom-scroll">
+            <span class="text-xs text-slate-400 italic">Upload sheet to populate colleges...</span>
           </div>
         </div>
+
       </div>
 
-      <div class="pt-2 border-t border-slate-100 flex items-center relative">
-        <i class="fa-solid fa-magnifying-glass absolute left-3 text-slate-400 text-xs"></i>
-        <input type="text" id="tableSearch" oninput="renderUI()" placeholder="Search by student name, roll number, or college..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded outline-none focus:border-[#FF4B4B]" />
+      <!-- Quick Search Bar -->
+      <div class="pt-3 border-t border-slate-100 relative">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-5 text-slate-400 text-xs"></i>
+        <input type="text" id="tableSearch" oninput="renderUI()" placeholder="Search by student name, roll number, or institution..." class="w-full pl-9 pr-4 py-2 text-xs font-medium bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-[#EA1B3D] focus:bg-white transition" />
       </div>
     </div>
 
-    <!-- Section 1: College/TPO Cards -->
-    <div class="st-card p-4 space-y-3">
-      <div class="flex justify-between items-center border-b border-slate-100 pb-2">
-        <h3 class="font-bold text-sm text-slate-800"><i class="fa-solid fa-building-columns text-indigo-600 mr-2"></i>College / TPO Center</h3>
-        <span class="text-xs text-slate-400">PDF Summary & Excel Sheet per Institution</span>
+    <!-- College TPO Center -->
+    <div class="st-card p-5 space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-sm text-slate-900 flex items-center">
+          <i class="fa-solid fa-building-columns text-indigo-600 mr-2"></i>
+          Institution / TPO Reports
+        </h3>
+        <span class="text-xs text-slate-400 font-medium">Consolidated multi-year summaries</span>
       </div>
-      <div id="collegeCardsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <p class="text-xs text-slate-400 col-span-2 py-3 text-center">Upload an Excel sheet to view individual college cards.</p>
+      <div id="collegeCardsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+        <p class="text-xs text-slate-400 col-span-2 py-4 text-center font-medium">Upload workbook to view institution breakdowns.</p>
       </div>
     </div>
 
-    <!-- Section 2: Individual Students Table -->
+    <!-- Detailed Student Matrix -->
     <div class="st-card overflow-hidden">
-      <div class="px-4 py-3 border-b border-slate-100 flex justify-between items-center">
-        <h3 class="font-bold text-sm text-slate-800"><i class="fa-solid fa-user-graduate text-[#FF4B4B] mr-2"></i>Student Records & Individual Parent Send</h3>
-        <span id="recordCount" class="text-xs text-slate-400 font-medium">0 records</span>
+      <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+        <h3 class="font-bold text-sm text-slate-900 flex items-center">
+          <i class="fa-solid fa-user-graduate text-[#EA1B3D] mr-2"></i>
+          Student Assessment Matrix
+        </h3>
+        <span id="recordCount" class="text-xs text-slate-500 font-bold font-mono-data bg-white px-2.5 py-1 rounded-md border border-slate-200">0 records</span>
       </div>
 
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto custom-scroll">
         <table class="w-full text-left text-xs">
-          <thead class="bg-[#F9FBFD] text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-200">
+          <thead class="bg-[#F8FAFC] text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200 text-[11px]">
             <tr>
-              <th class="px-4 py-2.5">Roll No</th>
-              <th class="px-4 py-2.5">Student Name</th>
-              <th class="px-4 py-2.5">College</th>
-              <th class="px-4 py-2.5 text-center">Year</th>
-              <th class="px-4 py-2.5 text-center">Batch</th>
-              <th class="px-4 py-2.5 text-center">Attendance</th>
-              <th class="px-4 py-2.5 text-center">Tech %</th>
-              <th class="px-4 py-2.5 text-center">Soft Skills %</th>
-              <th class="px-4 py-2.5 text-center">Overall</th>
-              <th class="px-4 py-2.5 text-right">Action</th>
+              <th class="px-4 py-3">Roll No</th>
+              <th class="px-4 py-3">Student Name</th>
+              <th class="px-4 py-3">College</th>
+              <th class="px-3 py-3 text-center">Year</th>
+              <th class="px-3 py-3 text-center">Batch</th>
+              <th class="px-3 py-3 text-center">Attendance</th>
+              <th class="px-3 py-3 text-center">Tech</th>
+              <th class="px-3 py-3 text-center">Soft Skills</th>
+              <th class="px-3 py-3 text-center">Overall</th>
+              <th class="px-4 py-3 text-right">Direct Action</th>
             </tr>
           </thead>
-          <tbody id="tableBody" class="divide-y divide-slate-100">
+          <tbody id="tableBody" class="divide-y divide-slate-100 font-medium">
             <tr>
-              <td colspan="10" class="px-4 py-10 text-center text-slate-400">
-                Upload your multi-batch workbook from the sidebar to display records.
+              <td colspan="10" class="px-4 py-12 text-center text-slate-400 font-medium">
+                No active data. Upload your workbook from the sidebar to populate the evaluation matrix.
               </td>
             </tr>
           </tbody>
@@ -215,7 +279,7 @@
       const file = document.getElementById('excelFile').files[0];
       if (!file) return;
       document.getElementById('fileLabel').innerText = file.name;
-      document.getElementById('statusMsg').innerText = "Processing workbook batches...";
+      document.getElementById('statusMsg').innerText = "Processing batches and validating students...";
 
       const formData = new FormData();
       formData.append('file', file);
@@ -227,15 +291,15 @@
           rawStudents = data.students;
           document.getElementById('btnBulkParents').disabled = false;
           document.getElementById('btnBulkColleges').disabled = false;
-          document.getElementById('statusMsg').innerText = `${rawStudents.length} students loaded. Ready to dispatch.`;
+          document.getElementById('statusMsg').innerText = `Ready. Loaded ${rawStudents.length} student records across sheets.`;
           populateBatches();
           populateColleges();
           renderUI();
         } else {
-          alert("Error: " + (data.error || "Failed to parse file"));
+          alert("Parsing error: " + (data.error || "Please verify the sheet format."));
         }
       } catch (e) {
-        alert("Server error: " + e);
+        alert("Server request failed: " + e);
       }
     }
 
@@ -256,7 +320,7 @@
     function renderCollegeTags(colleges) {
       const container = document.getElementById('collegeTags');
       container.innerHTML = colleges.map(c => `
-        <label class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-medium cursor-pointer ${selectedColleges.has(c) ? 'bg-[#FF4B4B]/10 text-[#FF4B4B] border border-[#FF4B4B]/30' : 'bg-white text-slate-400 border border-slate-200'}">
+        <label class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer transition ${selectedColleges.has(c) ? 'bg-red-50 text-[#EA1B3D] border border-red-200' : 'bg-white text-slate-500 border border-slate-200'}">
           <input type="checkbox" ${selectedColleges.has(c) ? 'checked' : ''} onchange="toggleCollege('${c}')" class="hidden" />
           <span>${c}</span>
         </label>
@@ -299,14 +363,14 @@
         const mBatch = (batch === 'ALL' || s.Batch === batch);
         const mYear = (year === 'ALL' || s.Year === year);
         const mCollege = selectedColleges.has(s.CollegeName || 'Unknown College');
-        const mSearch = s.StudentName.toLowerCase().includes(query) || s.RollNo.toLowerCase().includes(query) || s.CollegeName.toLowerCase().includes(query);
+        const mSearch = s.StudentName.toLowerCase().includes(query) || s.RollNo.toLowerCase().includes(query) || (s.CollegeName && s.CollegeName.toLowerCase().includes(query));
         return mBatch && mYear && mCollege && mSearch;
       });
     }
 
     function renderUI() {
       const list = getFilteredRecords();
-      document.getElementById('recordCount').innerText = `${list.length} students found`;
+      document.getElementById('recordCount').innerText = `${list.length} Records`;
 
       if (list.length > 0) {
         document.getElementById('kpiTotal').innerText = list.length;
@@ -333,7 +397,7 @@
       const uniqueColleges = [...new Set(list.map(s => s.CollegeName))];
 
       if (uniqueColleges.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-400 col-span-2 py-3 text-center">No colleges in current filter.</p>`;
+        container.innerHTML = `<p class="text-xs text-slate-400 col-span-2 py-4 text-center">No colleges matching current active filter.</p>`;
         return;
       }
 
@@ -344,23 +408,24 @@
         const tpoEmail = colStudents.find(s => s.CollegeEmail)?.CollegeEmail || 'pavanipandit64@gmail.com';
 
         return `
-          <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50 flex flex-col justify-between space-y-2">
+          <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/40 hover:bg-white hover:border-slate-300 transition shadow-sm flex flex-col justify-between space-y-3">
             <div>
-              <div class="flex justify-between items-start">
-                <h4 class="font-bold text-xs text-slate-800 truncate">${college}</h4>
-                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700">${colStudents.length} Students</span>
+              <div class="flex justify-between items-center">
+                <h4 class="font-bold text-xs text-slate-900 truncate">${college}</h4>
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-mono-data">${colStudents.length} Students</span>
               </div>
-              <p class="text-[11px] text-slate-500 mt-1">3rd Year: <b>${y3}</b> | 4th Year: <b>${y4}</b> | TPO: <span class="font-mono text-slate-600">${tpoEmail}</span></p>
+              <p class="text-xs text-slate-500 mt-1 font-medium">3rd Year: <b class="text-slate-800">${y3}</b> &nbsp;|&nbsp; 4th Year: <b class="text-slate-800">${y4}</b></p>
+              <p class="text-[11px] text-slate-400 font-mono-data truncate mt-0.5">${tpoEmail}</p>
             </div>
             
-            <div class="flex items-center space-x-1.5 pt-2 border-t border-slate-200">
-              <button onclick="downloadCollegeSinglePDF('${college}')" class="st-btn-sec flex-1 py-1 rounded text-[11px] font-semibold flex items-center justify-center space-x-1">
-                <i class="fa-solid fa-file-pdf text-red-500"></i><span>PDF Report</span>
+            <div class="flex items-center space-x-2 pt-2 border-t border-slate-100">
+              <button onclick="downloadCollegeSinglePDF('${college}')" class="st-btn-sec flex-1 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center space-x-1.5">
+                <i class="fa-solid fa-file-pdf text-[#EA1B3D]"></i><span>PDF Report</span>
               </button>
-              <button onclick="downloadCollegeSingleExcel('${college}')" class="st-btn-sec flex-1 py-1 rounded text-[11px] font-semibold flex items-center justify-center space-x-1">
+              <button onclick="downloadCollegeSingleExcel('${college}')" class="st-btn-sec flex-1 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center space-x-1.5">
                 <i class="fa-solid fa-file-excel text-emerald-600"></i><span>Excel Sheet</span>
               </button>
-              <button onclick="sendSingleCollegeEmail('${college}', '${tpoEmail}')" class="st-btn-red py-1 px-3 rounded text-[11px] font-semibold">
+              <button onclick="sendSingleCollegeEmail('${college}', '${tpoEmail}')" class="st-btn-red py-1.5 px-3 rounded-lg text-xs font-bold">
                 Send to TPO
               </button>
             </div>
@@ -372,29 +437,29 @@
     function renderStudentsTable(list) {
       const tbody = document.getElementById('tableBody');
       if (list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" class="px-4 py-8 text-center text-slate-400">No records matching selected Batch, Year, or College filters.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="px-4 py-8 text-center text-slate-400 font-medium">No student records found matching the active selection.</td></tr>`;
         return;
       }
 
       tbody.innerHTML = list.map(s => {
         const origIdx = rawStudents.findIndex(x => x.id === s.id);
         return `
-          <tr class="hover:bg-[#F9FBFD] transition">
-            <td class="px-4 py-2.5 font-mono font-bold text-slate-700">${s.RollNo}</td>
-            <td class="px-4 py-2.5">
-              <div class="font-bold text-slate-800">${s.StudentName}</div>
-              <div class="text-[10px] text-slate-400 truncate">${s.ParentEmail || 'No Parent Email'}</div>
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="px-4 py-3 font-mono-data font-bold text-slate-700 text-xs">${s.RollNo}</td>
+            <td class="px-4 py-3">
+              <div class="font-bold text-slate-900 text-xs">${s.StudentName}</div>
+              <div class="text-[11px] text-slate-400 truncate max-w-[160px] font-mono-data">${s.ParentEmail || 'No parent email'}</div>
             </td>
-            <td class="px-4 py-2.5 text-slate-600 font-medium">${s.CollegeName}</td>
-            <td class="px-4 py-2.5 text-center"><span class="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-bold text-[10px]">${s.Year}</span></td>
-            <td class="px-4 py-2.5 text-center"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold text-[10px]">${s.Batch}</span></td>
-            <td class="px-4 py-2.5 text-center font-medium">${s.AttendedClasses}/${s.TotalClasses} <span class="text-[10px] text-slate-400 block">${s.AttendancePct}%</span></td>
-            <td class="px-4 py-2.5 text-center font-bold text-slate-700">${s.TechnicalMarks} <span class="text-[10px] text-[#FF4B4B] block font-normal">${s.TechnicalPct}%</span></td>
-            <td class="px-4 py-2.5 text-center font-bold text-slate-700">${s.SoftSkillsMarks} <span class="text-[10px] text-emerald-600 block font-normal">${s.SoftSkillsPct}%</span></td>
-            <td class="px-4 py-2.5 text-center font-bold text-[#FF4B4B]">${s.OverallScore}%</td>
-            <td class="px-4 py-2.5 text-right space-x-1 whitespace-nowrap">
-              <button onclick="downloadIndividualPdf(${origIdx})" class="st-btn-sec px-2 py-1 rounded text-[11px] font-semibold"><i class="fa-solid fa-download mr-1"></i>PDF</button>
-              <button onclick="sendSingleParentEmail(${origIdx})" class="st-btn-red px-2.5 py-1 rounded text-[11px] font-semibold">Send to Parent</button>
+            <td class="px-4 py-3 text-slate-700 text-xs">${s.CollegeName}</td>
+            <td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-bold text-[10px]">${s.Year}</span></td>
+            <td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-bold text-[10px]">${s.Batch}</span></td>
+            <td class="px-3 py-3 text-center font-mono-data text-xs">${s.AttendedClasses}/${s.TotalClasses} <span class="text-[11px] text-slate-400 block font-normal">${s.AttendancePct}%</span></td>
+            <td class="px-3 py-3 text-center font-bold text-slate-800 font-mono-data text-xs">${s.TechnicalMarks} <span class="text-[11px] text-[#EA1B3D] block font-normal">${s.TechnicalPct}%</span></td>
+            <td class="px-3 py-3 text-center font-bold text-slate-800 font-mono-data text-xs">${s.SoftSkillsMarks} <span class="text-[11px] text-emerald-600 block font-normal">${s.SoftSkillsPct}%</span></td>
+            <td class="px-3 py-3 text-center font-bold text-[#EA1B3D] font-mono-data text-xs">${s.OverallScore}%</td>
+            <td class="px-4 py-3 text-right space-x-1.5 whitespace-nowrap">
+              <button onclick="downloadIndividualPdf(${origIdx})" class="st-btn-sec px-2.5 py-1.5 rounded-md text-xs font-bold shadow-xs"><i class="fa-solid fa-download mr-1"></i>PDF</button>
+              <button onclick="sendSingleParentEmail(${origIdx})" class="st-btn-red px-3 py-1.5 rounded-md text-xs font-bold shadow-xs">Send</button>
             </td>
           </tr>
         `;
@@ -428,7 +493,7 @@
         body: JSON.stringify({ student, config: { sender_email, app_password } })
       });
       const data = await res.json();
-      if (data.success) alert(`Report sent to parent: ${student.ParentEmail}`);
+      if (data.success) alert(`Progress report sent to parent: ${student.ParentEmail}`);
       else alert('Failed: ' + data.error);
     }
 
@@ -437,18 +502,18 @@
       const sender_email = document.getElementById('senderEmail').value;
       const app_password = document.getElementById('appPassword').value;
       if (!sender_email || !app_pwd_check(app_password)) return;
-      if (!confirm(`Dispatch individual PDF reports to ${list.length} parents?`)) return;
+      if (!confirm(`Dispatch individual PDF progress reports to all ${list.length} filtered parents?`)) return;
 
       for (let i = 0; i < list.length; i++) {
-        document.getElementById('statusMsg').innerText = `Sending parent ${i+1}/${list.length}...`;
+        document.getElementById('statusMsg').innerText = `Sending parent report ${i+1} of ${list.length}...`;
         await fetch('/api/send-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ student: list[i], config: { sender_email, app_password } })
         });
       }
-      document.getElementById('statusMsg').innerText = "All parent emails dispatched!";
-      alert("All parent reports sent successfully!");
+      document.getElementById('statusMsg').innerText = "Bulk dispatch complete. All parent emails sent.";
+      alert("All parent progress reports dispatched successfully.");
     }
 
     async function downloadCollegeSinglePDF(college) {
@@ -491,7 +556,7 @@
         body: JSON.stringify({ college, college_email, students, config: { sender_email, app_password } })
       });
       const data = await res.json();
-      if (data.success) alert(`Consolidated PDF + Excel sent to ${college} (${college_email})`);
+      if (data.success) alert(`Consolidated PDF + Excel sheet sent to ${college} (${college_email})`);
       else alert('Failed: ' + data.error);
     }
 
@@ -502,22 +567,22 @@
       const app_password = document.getElementById('appPassword').value;
       if (!sender_email || !app_pwd_check(app_password)) return;
 
-      if (!confirm(`Dispatch Consolidated PDF + Excel sheets to all ${uniqueColleges.length} selected colleges?`)) return;
+      if (!confirm(`Dispatch Consolidated PDF + Excel sheets to all ${uniqueColleges.length} institutions?`)) return;
 
       for (let i = 0; i < uniqueColleges.length; i++) {
         const col = uniqueColleges[i];
         const colStudents = list.filter(s => s.CollegeName === col);
         const tpoEmail = colStudents.find(s => s.CollegeEmail)?.CollegeEmail || 'pavanipandit64@gmail.com';
 
-        document.getElementById('statusMsg').innerText = `Sending college ${i+1}/${uniqueColleges.length}...`;
+        document.getElementById('statusMsg').innerText = `Sending institution ${i+1} of ${uniqueColleges.length}...`;
         await fetch('/api/send-college-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ college: col, college_email: tpoEmail, students: colStudents, config: { sender_email, app_password } })
         });
       }
-      document.getElementById('statusMsg').innerText = "All college reports dispatched!";
-      alert("All college dispatches completed successfully!");
+      document.getElementById('statusMsg').innerText = "Bulk dispatch complete. All college packets sent.";
+      alert("All college dispatches completed successfully.");
     }
 
     function app_pwd_check(pwd) {
