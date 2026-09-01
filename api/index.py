@@ -61,7 +61,7 @@ def generate_individual_pdf(student):
         [Paragraph("<b>College Name:</b>", cell_b), Paragraph(str(student.get('CollegeName', 'N/A')), cell_r),
          Paragraph("<b>Overall Score:</b>", cell_b), Paragraph(f"<b>{student.get('OverallScore', 0)}%</b>", cell_b)],
         [Paragraph("<b>Attendance:</b>", cell_b), Paragraph(f"<b>{attendance_str}</b>", cell_b),
-         Paragraph("<b>Parent Email:</b>", cell_b), Paragraph(str(student.get('ParentEmail', 'N/A')), cell_r)],
+         Paragraph("<b>Parent Mobile:</b>", cell_b), Paragraph(str(student.get('ParentMobile', 'N/A')), cell_r)],
     ]
     meta_table = Table(meta_data, colWidths=[95, 175, 95, 175])
     meta_table.setStyle(TableStyle([
@@ -114,7 +114,7 @@ def generate_college_summary_pdf(college_name, students):
     avg_tech = round(sum(s.get('TechnicalPct', 0) for s in students) / (total or 1), 1)
     avg_soft = round(sum(s.get('SoftSkillsPct', 0) for s in students) / (total or 1), 1)
 
-    elements.append(Paragraph(f"<b>INFOBEANS FOUNDATION - COLLEGE CONSOLIDATED PERFORMANCE REPORT</b>", title_style))
+    elements.append(Paragraph(f"<b>INFOBEANS FOUNDATION - COLLEGE PERFORMANCE REPORT</b>", title_style))
     elements.append(Paragraph(f"<b>Institution:</b> {college_name} | <b>Total Enrolled:</b> {total} (3rd Year: {third_yr}, 4th Year: {fourth_yr}) | <b>Avg Attendance:</b> {avg_att}% | <b>Avg Tech:</b> {avg_tech}% | <b>Avg Soft Skills:</b> {avg_soft}%", sub_style))
     elements.append(Spacer(1, 10))
 
@@ -169,8 +169,9 @@ def parse_excel():
                 
                 name = str(row_dict.get('Student Name') or row_dict.get('Name') or f"Student {idx+1}")
                 email = str(row_dict.get('Parent Email') or row_dict.get('Email') or '')
+                mobile = str(row_dict.get('Parent Mobile') or row_dict.get('Mobile') or row_dict.get('Phone') or '7999143958')
                 college = str(row_dict.get('College Name') or row_dict.get('College') or 'Unassigned College')
-                college_email = str(row_dict.get('College Email') or row_dict.get('TPO Email') or '')
+                college_email = str(row_dict.get('College Email') or row_dict.get('TPO Email') or 'pavanipandit64@gmail.com')
                 roll = str(row_dict.get('Roll No') or row_dict.get('Roll') or f"IB-{1000+idx}")
                 
                 year_raw = str(row_dict.get('Year') or row_dict.get('Academic Year') or '3rd Year')
@@ -193,6 +194,7 @@ def parse_excel():
                     "StudentName": name,
                     "RollNo": roll,
                     "ParentEmail": email,
+                    "ParentMobile": mobile,
                     "CollegeName": college,
                     "CollegeEmail": college_email,
                     "Year": year,
@@ -231,7 +233,7 @@ def download_college_excel():
     college = payload.get('college', 'College')
     
     df = pd.DataFrame(students)
-    cols = ['RollNo', 'StudentName', 'CollegeName', 'Year', 'Batch', 'AttendedClasses', 'TotalClasses', 'AttendancePct', 'TechnicalMarks', 'TechnicalPct', 'SoftSkillsMarks', 'SoftSkillsPct', 'OverallScore', 'ParentEmail', 'CollegeEmail']
+    cols = ['RollNo', 'StudentName', 'CollegeName', 'Year', 'Batch', 'AttendedClasses', 'TotalClasses', 'AttendancePct', 'TechnicalMarks', 'TechnicalPct', 'SoftSkillsMarks', 'SoftSkillsPct', 'OverallScore', 'ParentMobile', 'ParentEmail', 'CollegeEmail']
     export_df = df[[c for c in cols if c in df.columns]]
     
     buffer = io.BytesIO()
@@ -248,19 +250,19 @@ def send_email():
     config = payload.get('config', {})
     sender_email = config.get('sender_email')
     app_pwd = config.get('app_password')
-    target_email = student.get('ParentEmail')
+    target_email = student.get('ParentEmail') or 'pavanipandit64@gmail.com'
 
-    if not sender_email or not app_pwd or not target_email:
-        return jsonify({'error': 'Credentials or Email missing'}), 400
+    if not sender_email or not app_pwd:
+        return jsonify({'error': 'Sender Gmail or App Password missing'}), 400
 
     try:
         pdf_buf = generate_individual_pdf(student)
         msg = MIMEMultipart()
         msg['From'] = f"InfoBeans Foundation <{sender_email}>"
         msg['To'] = target_email
-        msg['Subject'] = f"Student Monthly Progress Report - {student.get('StudentName')} ({student.get('RollNo')})"
+        msg['Subject'] = f"Monthly Progress Report - {student.get('StudentName')} ({student.get('RollNo')})"
 
-        body = f"""Dear Parent,\n\nPlease find attached the official monthly academic progress report of {student.get('StudentName')} ({student.get('RollNo')}), {student.get('CollegeName')}.\n\nBatch: {student.get('Batch')} | Academic Year: {student.get('Year')}\nAttendance: {student.get('AttendedClasses')} / {student.get('TotalClasses')} ({student.get('AttendancePct')}%)\nTechnical Assessment: {student.get('TechnicalMarks')}/100 ({student.get('TechnicalPct')}%)\nSoft Skills Assessment: {student.get('SoftSkillsMarks')}/100 ({student.get('SoftSkillsPct')}%)\n\nRegards,\nInfoBeans Foundation"""
+        body = f"""Dear Parent,\n\nPlease find attached the official monthly academic progress report of {student.get('StudentName')} ({student.get('RollNo')}), {student.get('CollegeName')}.\n\nBatch: {student.get('Batch')} | Year: {student.get('Year')}\nAttendance: {student.get('AttendedClasses')} / {student.get('TotalClasses')} ({student.get('AttendancePct')}%)\nTechnical Score: {student.get('TechnicalMarks')}/100 ({student.get('TechnicalPct')}%)\nSoft Skills Score: {student.get('SoftSkillsMarks')}/100 ({student.get('SoftSkillsPct')}%)\nOverall Score: {student.get('OverallScore')}%\n\nRegards,\nInfoBeans Foundation"""
         msg.attach(MIMEText(body, 'plain'))
 
         part = MIMEBase('application', 'octet-stream')
@@ -282,21 +284,21 @@ def send_email():
 def send_college_email():
     payload = request.json or {}
     college = payload.get('college', 'College')
-    college_email = payload.get('college_email')
+    college_email = payload.get('college_email') or 'pavanipandit64@gmail.com'
     students = payload.get('students', [])
     config = payload.get('config', {})
     
     sender_email = config.get('sender_email')
     app_pwd = config.get('app_password')
 
-    if not sender_email or not app_pwd or not college_email:
-        return jsonify({'error': 'College Email or Sender Credentials missing'}), 400
+    if not sender_email or not app_pwd:
+        return jsonify({'error': 'Sender Gmail or App Password missing'}), 400
 
     try:
         pdf_buf = generate_college_summary_pdf(college, students)
         
         df = pd.DataFrame(students)
-        cols = ['RollNo', 'StudentName', 'CollegeName', 'Year', 'Batch', 'AttendedClasses', 'TotalClasses', 'AttendancePct', 'TechnicalMarks', 'TechnicalPct', 'SoftSkillsMarks', 'SoftSkillsPct', 'OverallScore', 'ParentEmail', 'CollegeEmail']
+        cols = ['RollNo', 'StudentName', 'CollegeName', 'Year', 'Batch', 'AttendedClasses', 'TotalClasses', 'AttendancePct', 'TechnicalMarks', 'TechnicalPct', 'SoftSkillsMarks', 'SoftSkillsPct', 'OverallScore', 'ParentMobile', 'ParentEmail', 'CollegeEmail']
         export_df = df[[c for c in cols if c in df.columns]]
         xls_buf = io.BytesIO()
         with pd.ExcelWriter(xls_buf, engine='openpyxl') as writer:
@@ -311,14 +313,12 @@ def send_college_email():
         body = f"""Respected Training & Placement Officer / College Authority,\n\nPlease find attached the consolidated student performance report and Excel records sheet for students enrolled at InfoBeans Foundation from {college}.\n\nTotal Enrolled Students: {len(students)}\nAttached:\n1. PDF Performance Summary Report\n2. Detailed Student Attendance & Marks Excel Sheet\n\nWarm regards,\nInfoBeans Foundation Team"""
         msg.attach(MIMEText(body, 'plain'))
 
-        # PDF Attachment
         part1 = MIMEBase('application', 'octet-stream')
         part1.set_payload(pdf_buf.read())
         encoders.encode_base64(part1)
         part1.add_header('Content-Disposition', f'attachment; filename="{college.replace(" ", "_")}_Consolidated_Report.pdf"')
         msg.attach(part1)
 
-        # Excel Attachment
         part2 = MIMEBase('application', 'octet-stream')
         part2.set_payload(xls_buf.read())
         encoders.encode_base64(part2)
