@@ -15,136 +15,11 @@ from reportlab.lib import colors
 
 # ----------------- PAGE CONFIG -----------------
 st.set_page_config(
-    page_title="InfoBeans Foundation - Progress Portal",
-    page_icon="https://infobeansfoundation.org/wp-content/uploads/2022/07/logo.png",
+    page_title="InfoBeans Foundation Portal",
+    page_icon="🔴",
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
-# ----------------- CLEAN CORPORATE UI STYLING -----------------
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap');
-    
-    html, body, [class*="css"] {
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
-        color: #0F172A !important;
-    }
-    
-    /* Background force clean */
-    .stApp {
-        background-color: #F8FAFC !important;
-    }
-    
-    /* Sidebar styling */
-    [data-testid="stSidebar"] {
-        background-color: #FFFFFF !important;
-        border-right: 1px solid #E2E8F0 !important;
-    }
-    
-    /* Header Container */
-    .header-box {
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 14px;
-        padding: 20px 24px;
-        margin-bottom: 22px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    
-    .portal-heading {
-        font-size: 24px;
-        font-weight: 800;
-        color: #0F172A;
-        letter-spacing: -0.5px;
-        margin: 0;
-    }
-    
-    .portal-desc {
-        font-size: 13px;
-        color: #64748B;
-        margin-top: 4px;
-        font-weight: 500;
-    }
-
-    /* Metric Cards */
-    div[data-testid="stMetric"] {
-        background-color: #FFFFFF !important;
-        border: 1px solid #E2E8F0 !important;
-        padding: 16px 20px !important;
-        border-radius: 12px !important;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.03) !important;
-    }
-    div[data-testid="stMetricLabel"] p {
-        font-size: 12px !important;
-        font-weight: 700 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.5px !important;
-        color: #64748B !important;
-    }
-    div[data-testid="stMetricValue"] div {
-        font-size: 24px !important;
-        font-weight: 800 !important;
-        color: #0F172A !important;
-        font-family: 'JetBrains Mono', monospace !important;
-    }
-
-    /* Buttons */
-    .stButton > button {
-        border-radius: 8px !important;
-        font-weight: 700 !important;
-        font-size: 13px !important;
-        transition: all 0.2s ease !important;
-    }
-    
-    /* Primary Red Button */
-    .stButton > button[kind="primary"] {
-        background-color: #EA1B3D !important;
-        border: none !important;
-        color: white !important;
-        box-shadow: 0 2px 8px rgba(234, 27, 61, 0.25) !important;
-    }
-    .stButton > button[kind="primary"]:hover {
-        background-color: #D01433 !important;
-        transform: translateY(-1px) !important;
-    }
-
-    /* WhatsApp direct anchor button */
-    .wa-link-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        background-color: #25D366;
-        color: #FFFFFF !important;
-        font-weight: 700;
-        font-size: 12px;
-        padding: 8px 12px;
-        border-radius: 8px;
-        text-decoration: none !important;
-        box-shadow: 0 2px 6px rgba(37, 211, 102, 0.25);
-        transition: all 0.2s;
-    }
-    .wa-link-btn:hover {
-        background-color: #1EBE5D;
-        color: #FFFFFF !important;
-        transform: translateY(-1px);
-    }
-
-    /* Card Containers */
-    [data-testid="stVerticalBlockBorderWrapper"] {
-        background: #FFFFFF !important;
-        border-radius: 12px !important;
-        border: 1px solid #E2E8F0 !important;
-        padding: 16px !important;
-        margin-bottom: 12px !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
 
 BRAND_RED = colors.HexColor("#EA1B3D")
 BRAND_SLATE = colors.HexColor("#1E293B")
@@ -341,31 +216,31 @@ def send_college_email(college_name, college_email, students, report_month, send
 
 # ----------------- SIDEBAR -----------------
 with st.sidebar:
-    st.image("https://infobeansfoundation.org/wp-content/uploads/2022/07/logo.png", width=190)
-    st.markdown("<p style='font-size:12px;color:#64748B;font-weight:600;margin-top:-6px;'>Progress & Dispatch Portal</p>", unsafe_allow_html=True)
-    st.markdown("---")
+    st.markdown("""
+        <div style="background-color:#EA1B3D; padding:12px; border-radius:8px; text-align:center; margin-bottom:12px;">
+            <span style="color:white; font-size:18px; font-weight:900; letter-spacing:1px;">InfoBeans</span>
+            <span style="color:white; font-size:13px; font-weight:400; display:block;">FOUNDATION</span>
+        </div>
+    """, unsafe_allow_html=True)
     
     uploaded_file = st.file_uploader("Upload Multi-Batch Excel File", type=["xlsx", "xls"])
     
-    st.markdown("---")
-    st.markdown("<p style='font-size:11px;font-weight:800;color:#94A3B8;text-transform:uppercase;'>⚙️ Credentials & Context</p>", unsafe_allow_html=True)
+    st.divider()
+    st.markdown("### ⚙️ Settings & Credentials")
     report_month = st.text_input("Evaluation Month", value="September 2026")
     sender_email = st.text_input("Sender Gmail Address", value="pavanipandit64@gmail.com")
-    app_password = st.text_input("16-Digit Gmail App Password", type="password", help="Generate from: Google Account > Security > App Passwords")
+    app_password = st.text_input("16-Digit App Password", type="password")
 
-# ----------------- MAIN HEADER BOX -----------------
+# ----------------- MAIN TITLE -----------------
 st.markdown("""
-    <div class="header-box">
-        <div>
-            <h1 class="portal-heading">Student & College Evaluation Hub</h1>
-            <p class="portal-desc">Multi-batch consolidation, 3rd/4th year segregation, WhatsApp direct parent updates & TPO reports.</p>
-        </div>
-        <img src="https://infobeansfoundation.org/wp-content/uploads/2022/07/logo.png" style="height: 48px; object-fit: contain;" />
+    <div style="border-left: 5px solid #EA1B3D; padding-left: 15px; margin-bottom: 20px;">
+        <h1 style="margin:0; font-size: 26px; font-weight:800; color:#EA1B3D;">InfoBeans Foundation</h1>
+        <p style="margin:2px 0 0 0; font-size: 14px; opacity: 0.8;">Student Progress & Multi-College Reporting Portal</p>
     </div>
 """, unsafe_allow_html=True)
 
 if uploaded_file is None:
-    st.info("📌 Please upload the multi-batch Excel workbook from the sidebar to activate the reporting engine.")
+    st.info("👆 Please upload your Excel workbook (`InfoBeans_Shuffled_Testing_MultiBatch.xlsx`) from the sidebar to view data.")
     st.stop()
 
 # ----------------- DATA PROCESSING -----------------
@@ -423,12 +298,12 @@ except Exception as e:
     st.stop()
 
 # ----------------- FILTERS BAR -----------------
-with st.container(border=True):
+with st.container():
     col_f1, col_f2, col_f3 = st.columns([1.2, 1.2, 2.6])
 
     with col_f1:
         batch_list = ["ALL"] + sorted(list(set(s['Batch'] for s in students)))
-        selected_batch = st.selectbox("Select Batch", batch_list)
+        selected_batch = st.selectbox("Batch Filter", batch_list)
 
     with col_f2:
         selected_year = st.selectbox("Academic Year", ["ALL", "3rd Year", "4th Year"])
@@ -437,7 +312,7 @@ with st.container(border=True):
     all_colleges = sorted(list(set(s['CollegeName'] for s in filtered_temp)))
 
     with col_f3:
-        selected_colleges = st.multiselect("Filter Colleges (Add/Subtract)", all_colleges, default=all_colleges)
+        selected_colleges = st.multiselect("Colleges Filter", all_colleges, default=all_colleges)
 
 filtered_students = [s for s in filtered_temp if s['CollegeName'] in selected_colleges]
 
@@ -450,66 +325,67 @@ avg_att = round(sum(s['AttendancePct'] for s in filtered_students) / (total_coun
 avg_tech = round(sum(s['TechnicalPct'] for s in filtered_students) / (total_count or 1), 1)
 avg_soft = round(sum(s['SoftSkillsPct'] for s in filtered_students) / (total_count or 1), 1)
 
-m1.metric("Total Enrolled", total_count)
+m1.metric("Total Students", total_count)
 m2.metric("3rd / 4th Year", f"{y3_count} / {y4_count}")
 m3.metric("Avg Attendance", f"{avg_att}%")
-m4.metric("Avg Technical", f"{avg_tech}%")
+m4.metric("Avg Tech Score", f"{avg_tech}%")
 m5.metric("Avg Soft Skills", f"{avg_soft}%")
 
-# ----------------- TOP MASTER DISPATCH BUTTONS -----------------
-st.markdown("<br/>", unsafe_allow_html=True)
-with st.container(border=True):
-    st.markdown("<p style='font-size:13px;font-weight:800;color:#0F172A;margin-bottom:10px;'>⚡ MASTER DISPATCH ACTIONS (FILTERED RECORDS)</p>", unsafe_allow_html=True)
-    act_c1, act_c2 = st.columns(2)
+st.divider()
 
-    with act_c1:
-        if st.button("✉️ Send Individual Progress Reports to All Filtered Parents", use_container_width=True, type="primary"):
-            if not app_password:
-                st.warning("⚠️ Enter your 16-Digit Gmail App Password in the sidebar.")
-            else:
-                progress_bar = st.progress(0)
-                status_text = st.empty()
-                success_count = 0
-                for i, st_data in enumerate(filtered_students):
-                    status_text.text(f"Sending ({i+1}/{total_count}): {st_data['StudentName']} to {st_data['ParentEmail']}...")
-                    try:
-                        send_parent_email(st_data, report_month, sender_email, app_password)
-                        success_count += 1
-                    except Exception as e:
-                        st.error(f"Failed on {st_data['StudentName']}: {e}")
-                        break
-                    progress_bar.progress((i + 1) / total_count)
-                status_text.success(f"✅ Dispatched {success_count} parent reports successfully via Email!")
+# ----------------- BULK DISPATCH BUTTONS -----------------
+st.subheader("⚡ Bulk Dispatch Operations")
+act_c1, act_c2 = st.columns(2)
 
-    with act_c2:
-        if st.button("🏛️ Send Consolidated PDF + Excel to All Selected Colleges", use_container_width=True):
-            if not app_password:
-                st.warning("⚠️ Enter your 16-Digit Gmail App Password in the sidebar.")
-            else:
-                col_list = sorted(list(set(s['CollegeName'] for s in filtered_students)))
-                progress_bar = st.progress(0)
-                status_text = st.empty()
-                success_col_count = 0
-                for i, col_name in enumerate(col_list):
-                    c_students = [s for s in filtered_students if s['CollegeName'] == col_name]
-                    c_email = c_students[0].get('CollegeEmail') or 'pavanipandit64@gmail.com'
-                    status_text.text(f"Sending ({i+1}/{len(col_list)}): {col_name} to {c_email}...")
-                    try:
-                        send_college_email(col_name, c_email, c_students, report_month, sender_email, app_password)
-                        success_col_count += 1
-                    except Exception as e:
-                        st.error(f"Failed on {col_name}: {e}")
-                        break
-                    progress_bar.progress((i + 1) / len(col_list))
-                status_text.success(f"✅ Dispatched consolidated packets to {success_col_count} institutions!")
+with act_c1:
+    if st.button("📧 Send Individual Email to All Filtered Parents", use_container_width=True, type="primary"):
+        if not app_password:
+            st.warning("⚠️ Enter your 16-digit Gmail App Password in the sidebar.")
+        else:
+            progress_bar = st.progress(0)
+            status_text = st.empty()
+            success_count = 0
+            for i, st_data in enumerate(filtered_students):
+                status_text.text(f"Sending ({i+1}/{total_count}): {st_data['StudentName']}...")
+                try:
+                    send_parent_email(st_data, report_month, sender_email, app_password)
+                    success_count += 1
+                except Exception as e:
+                    st.error(f"Failed on {st_data['StudentName']}: {e}")
+                    break
+                progress_bar.progress((i + 1) / total_count)
+            status_text.success(f"✅ Dispatched {success_count} parent reports via Email!")
+
+with act_c2:
+    if st.button("🏛️ Send Consolidated PDF + Excel to All Colleges", use_container_width=True):
+        if not app_password:
+            st.warning("⚠️ Enter your 16-digit Gmail App Password in the sidebar.")
+        else:
+            col_list = sorted(list(set(s['CollegeName'] for s in filtered_students)))
+            progress_bar = st.progress(0)
+            status_text = st.empty()
+            success_col_count = 0
+            for i, col_name in enumerate(col_list):
+                c_students = [s for s in filtered_students if s['CollegeName'] == col_name]
+                c_email = c_students[0].get('CollegeEmail') or 'pavanipandit64@gmail.com'
+                status_text.text(f"Sending ({i+1}/{len(col_list)}): {col_name}...")
+                try:
+                    send_college_email(col_name, c_email, c_students, report_month, sender_email, app_password)
+                    success_col_count += 1
+                except Exception as e:
+                    st.error(f"Failed on {col_name}: {e}")
+                    break
+                progress_bar.progress((i + 1) / len(col_list))
+            status_text.success(f"✅ Dispatched packets to {success_col_count} colleges!")
+
+st.divider()
 
 # ----------------- SECTION 1: COLLEGE CARDS -----------------
-st.markdown("<br/>", unsafe_allow_html=True)
-st.markdown("<h3 style='font-size:16px;font-weight:800;color:#0F172A;'>🏛️ Institution / TPO Performance Packets</h3>", unsafe_allow_html=True)
+st.subheader("🏛️ Institution / TPO Reports")
 col_cards = sorted(list(set(s['CollegeName'] for s in filtered_students)))
 
 if not col_cards:
-    st.info("No institutions in current filter.")
+    st.info("No colleges in current active filter.")
 else:
     grid_cols = st.columns(2)
     for idx, c_name in enumerate(col_cards):
@@ -520,8 +396,8 @@ else:
         
         with grid_cols[idx % 2]:
             with st.container(border=True):
-                st.markdown(f"<p style='font-size:14px;font-weight:800;color:#0F172A;margin:0;'>{c_name} <span style='font-size:11px;background:#EEF2FF;color:#4F46E5;padding:2px 8px;border-radius:6px;font-weight:700;margin-left:6px;'>{len(c_students)} Enrolled</span></p>", unsafe_allow_html=True)
-                st.markdown(f"<p style='font-size:12px;color:#64748B;margin-top:2px;'>3rd Year: <b>{c_y3}</b> &nbsp;|&nbsp; 4th Year: <b>{c_y4}</b> &nbsp;|&nbsp; TPO: <span style='font-family:monospace;color:#334155;'>{c_email}</span></p>", unsafe_allow_html=True)
+                st.markdown(f"**{c_name}** ({len(c_students)} Students)")
+                st.caption(f"3rd Year: **{c_y3}** | 4th Year: **{c_y4}** | TPO Email: `{c_email}`")
                 
                 b1, b2, b3 = st.columns(3)
                 c_pdf = generate_college_pdf(c_name, c_students)
@@ -541,35 +417,36 @@ else:
                             except Exception as e:
                                 st.error(f"Error: {e}")
 
+st.divider()
+
 # ----------------- SECTION 2: INDIVIDUAL STUDENTS TABLE & WHATSAPP -----------------
-st.markdown("<br/>", unsafe_allow_html=True)
-st.markdown("<h3 style='font-size:16px;font-weight:800;color:#0F172A;'>👨‍🎓 Student Evaluation & Parent Direct Dispatch Matrix</h3>", unsafe_allow_html=True)
+st.subheader("👨‍🎓 Student Evaluation Matrix")
 
 for idx, s in enumerate(filtered_students):
     with st.container(border=True):
         row_c1, row_c2, row_c3, row_c4, row_c5 = st.columns([2.5, 2.2, 2.5, 1.3, 2.5])
         
         with row_c1:
-            st.markdown(f"<p style='font-size:13px;font-weight:800;color:#0F172A;margin:0;'>{s['StudentName']} <span style='font-size:11px;font-family:monospace;color:#64748B;'>({s['RollNo']})</span></p>", unsafe_allow_html=True)
-            st.markdown(f"<p style='font-size:11px;color:#64748B;font-family:monospace;margin-top:2px;'>📱 {s['ParentMobile']} &nbsp;|&nbsp; ✉️ {s['ParentEmail']}</p>", unsafe_allow_html=True)
+            st.markdown(f"**{s['StudentName']}** (`{s['RollNo']}`)")
+            st.caption(f"📱 {s['ParentMobile']} | ✉️ {s['ParentEmail']}")
             
         with row_c2:
-            st.markdown(f"<p style='font-size:12px;font-weight:700;color:#334155;margin:0;'>{s['CollegeName']}</p>", unsafe_allow_html=True)
-            st.markdown(f"<p style='font-size:11px;color:#64748B;margin-top:2px;'>Batch: <b>{s['Batch']}</b> ({s['Year']})</p>", unsafe_allow_html=True)
+            st.markdown(f"**{s['CollegeName']}**")
+            st.caption(f"Batch: {s['Batch']} | Year: {s['Year']}")
             
         with row_c3:
-            st.markdown(f"<p style='font-size:12px;color:#0F172A;margin:0;'>Attendance: <b>{s['AttendedClasses']}/{s['TotalClasses']} ({s['AttendancePct']}%)</b></p>", unsafe_allow_html=True)
-            st.markdown(f"<p style='font-size:11px;color:#64748B;margin-top:2px;'>Tech: <b style='color:#EA1B3D;'>{s['TechnicalPct']}%</b> &nbsp;|&nbsp; Soft Skills: <b style='color:#059669;'>{s['SoftSkillsPct']}%</b></p>", unsafe_allow_html=True)
+            st.markdown(f"Attendance: **{s['AttendedClasses']}/{s['TotalClasses']} ({s['AttendancePct']}%)**")
+            st.caption(f"Tech: {s['TechnicalPct']}% | Soft Skills: {s['SoftSkillsPct']}%")
             
         with row_c4:
-            st.markdown(f"<p style='font-size:16px;font-weight:800;color:#EA1B3D;font-family:monospace;margin:0;'>{s['OverallScore']}%</p>", unsafe_allow_html=True)
-            st.markdown("<p style='font-size:10px;color:#94A3B8;text-transform:uppercase;font-weight:700;'>Overall</p>", unsafe_allow_html=True)
+            st.markdown(f"**{s['OverallScore']}%**")
+            st.caption("Overall Score")
             
         with row_c5:
             wa_text = f"*INFOBEANS FOUNDATION - Progress Report*\n\nDear Parent,\nProgress Report for *{s['StudentName']}* ({s['RollNo']}), *{s['CollegeName']}* for {report_month}:\n- Batch: {s['Batch']} ({s['Year']})\n- Attendance: {s['AttendedClasses']}/{s['TotalClasses']} ({s['AttendancePct']}%)\n- Technical: {s['TechnicalPct']}%\n- Soft Skills: {s['SoftSkillsPct']}%\n- Overall: {s['OverallScore']}%\n\nWarm regards,\n*InfoBeans Foundation Team*"
             wa_url = f"https://wa.me/91{s['ParentMobile']}?text={urllib.parse.quote(wa_text)}"
             
-            st.markdown(f'<a href="{wa_url}" target="_blank" class="wa-link-btn">💬 Send WhatsApp</a>', unsafe_allow_html=True)
+            st.markdown(f'<a href="{wa_url}" target="_blank" style="display:block; text-align:center; background-color:#25D366; color:white; font-weight:bold; font-size:12px; padding:6px; border-radius:6px; text-decoration:none; margin-bottom:6px;">💬 WhatsApp Message</a>', unsafe_allow_html=True)
             
             wb_col1, wb_col2 = st.columns(2)
             pdf_data = generate_student_pdf(s, report_month)
