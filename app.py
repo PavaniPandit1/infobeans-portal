@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import io
 import smtplib
+import re
 import urllib.parse
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -163,56 +164,51 @@ def generate_college_excel(students):
     buf.seek(0)
     return buf
 
-# ----------------- EMAIL DISPATCHER -----------------
+# ----------------- EMAIL DISPATCHER (SANITIZED & BULLETPROOF) -----------------
+def execute_smtp_send(to_email, subject, body_text, attachments, sender_email, app_pwd):
+    clean_sender = str(sender_email).strip()
+    clean_pwd = re.sub(r'[^a-zA-Z0-9]', '', str(app_pwd)).strip()
+    clean_to = str(to_email).strip()
+
+    if not clean_sender or not clean_pwd:
+        raise ValueError("Sender email or 16-character App Password missing.")
+
+    msg = MIMEMultipart()
+    msg['From'] = f"InfoBeans Foundation <{clean_sender}>"
+    msg['To'] = clean_to
+    msg['Subject'] = subject
+    msg.attach(MIMEText(body_text, 'plain'))
+
+    for filename, file_buffer in attachments:
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(file_buffer.read())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', f'attachment; filename="{filename}"')
+        msg.attach(part)
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=25) as server:
+        server.login(clean_sender, clean_pwd)
+        server.send_message(msg)
+
 def send_parent_email(student, report_month, sender_email, app_pwd):
     pdf_buf = generate_student_pdf(student, report_month)
     target_email = student.get('ParentEmail') or 'pavanipandit64@gmail.com'
-
-    msg = MIMEMultipart()
-    msg['From'] = f"InfoBeans Foundation <{sender_email}>"
-    msg['To'] = target_email
-    msg['Subject'] = f"Student Progress Report - {student.get('StudentName')} ({student.get('RollNo')})"
-
+    subject = f"Student Progress Report - {student.get('StudentName')} ({student.get('RollNo')})"
     body = f"""Dear Parent,\n\nPlease find attached the monthly progress report of {student.get('StudentName')} ({student.get('RollNo')}), {student.get('CollegeName')}.\n\nBatch: {student.get('Batch')} | Academic Year: {student.get('Year')}\nAttendance: {student.get('AttendedClasses')}/{student.get('TotalClasses')} ({student.get('AttendancePct')}%)\nTechnical Score: {student.get('TechnicalMarks')}/100 ({student.get('TechnicalPct')}%)\nSoft Skills Score: {student.get('SoftSkillsMarks')}/100 ({student.get('SoftSkillsPct')}%)\nOverall Score: {student.get('OverallScore')}%\n\nWarm regards,\nInfoBeans Foundation Team"""
-    msg.attach(MIMEText(body, 'plain'))
-
-    part = MIMEBase('application', 'octet-stream')
-    part.set_payload(pdf_buf.read())
-    encoders.encode_base64(part)
-    part.add_header('Content-Disposition', f'attachment; filename="{student.get("RollNo")}_Report.pdf"')
-    msg.attach(part)
-
-    with smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=20) as server:
-        server.login(sender_email.strip(), app_pwd.strip().replace(" ", ""))
-        server.send_message(msg)
+    
+    execute_smtp_send(target_email, subject, body, [(f"{student.get('RollNo')}_Report.pdf", pdf_buf)], sender_email, app_pwd)
 
 def send_college_email(college_name, college_email, students, report_month, sender_email, app_pwd):
     pdf_buf = generate_college_pdf(college_name, students)
     xls_buf = generate_college_excel(students)
-
-    msg = MIMEMultipart()
-    msg['From'] = f"InfoBeans Foundation <{sender_email}>"
-    msg['To'] = college_email
-    msg['Subject'] = f"Consolidated Student Performance & Attendance Report - {college_name}"
-
+    target_email = college_email or 'pavanipandit64@gmail.com'
+    subject = f"Consolidated Student Performance & Attendance Report - {college_name}"
     body = f"""Respected Training & Placement Officer / College Authority,\n\nPlease find attached the consolidated student performance report and Excel sheet for students enrolled at InfoBeans Foundation from {college_name}.\n\nTotal Enrolled Students: {len(students)}\nEvaluation Month: {report_month}\n\nAttached:\n1. PDF Performance Summary Report\n2. Detailed Student Attendance & Marks Excel Sheet\n\nWarm regards,\nInfoBeans Foundation Team"""
-    msg.attach(MIMEText(body, 'plain'))
-
-    part1 = MIMEBase('application', 'octet-stream')
-    part1.set_payload(pdf_buf.read())
-    encoders.encode_base64(part1)
-    part1.add_header('Content-Disposition', f'attachment; filename="{college_name.replace(" ", "_")}_Consolidated_Report.pdf"')
-    msg.attach(part1)
-
-    part2 = MIMEBase('application', 'octet-stream')
-    part2.set_payload(xls_buf.read())
-    encoders.encode_base64(part2)
-    part2.add_header('Content-Disposition', f'attachment; filename="{college_name.replace(" ", "_")}_Student_Records.xlsx"')
-    msg.attach(part2)
-
-    with smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=25) as server:
-        server.login(sender_email.strip(), app_pwd.strip().replace(" ", ""))
-        server.send_message(msg)
+    
+    execute_smtp_send(target_email, subject, body, [
+        (f"{college_name.replace(' ', '_')}_Consolidated_Report.pdf", pdf_buf),
+        (f"{college_name.replace(' ', '_')}_Student_Records.xlsx", xls_buf)
+    ], sender_email, app_pwd)
 
 # ----------------- SIDEBAR -----------------
 with st.sidebar:
@@ -228,8 +224,8 @@ with st.sidebar:
     st.divider()
     st.markdown("### ⚙️ Settings & Credentials")
     report_month = st.text_input("Evaluation Month", value="September 2026")
-    sender_email = st.text_input("Sender Gmail Address", value="pavanipandit64@gmail.com")
-    app_password = st.text_input("16-Digit App Password", type="password")
+    sender_email = st.text_input("Sender Gmail Address", value="xyz12097@gmail.com")
+    app_password = st.text_input("16-Digit App Password", type="password", help="16-character App Password without spaces")
 
 # ----------------- MAIN TITLE -----------------
 st.markdown("""
@@ -346,7 +342,7 @@ with act_c1:
             status_text = st.empty()
             success_count = 0
             for i, st_data in enumerate(filtered_students):
-                status_text.text(f"Sending ({i+1}/{total_count}): {st_data['StudentName']}...")
+                status_text.text(f"Sending ({i+1}/{total_count}): {st_data['StudentName']} to {st_data['ParentEmail']}...")
                 try:
                     send_parent_email(st_data, report_month, sender_email, app_password)
                     success_count += 1
@@ -354,7 +350,8 @@ with act_c1:
                     st.error(f"Failed on {st_data['StudentName']}: {e}")
                     break
                 progress_bar.progress((i + 1) / total_count)
-            status_text.success(f"✅ Dispatched {success_count} parent reports via Email!")
+            if success_count == total_count:
+                status_text.success(f"✅ Dispatched all {success_count} parent reports via Email!")
 
 with act_c2:
     if st.button("🏛️ Send Consolidated PDF + Excel to All Colleges", use_container_width=True):
@@ -368,7 +365,7 @@ with act_c2:
             for i, col_name in enumerate(col_list):
                 c_students = [s for s in filtered_students if s['CollegeName'] == col_name]
                 c_email = c_students[0].get('CollegeEmail') or 'pavanipandit64@gmail.com'
-                status_text.text(f"Sending ({i+1}/{len(col_list)}): {col_name}...")
+                status_text.text(f"Sending ({i+1}/{len(col_list)}): {col_name} to {c_email}...")
                 try:
                     send_college_email(col_name, c_email, c_students, report_month, sender_email, app_password)
                     success_col_count += 1
@@ -376,7 +373,8 @@ with act_c2:
                     st.error(f"Failed on {col_name}: {e}")
                     break
                 progress_bar.progress((i + 1) / len(col_list))
-            status_text.success(f"✅ Dispatched packets to {success_col_count} colleges!")
+            if success_col_count == len(col_list):
+                status_text.success(f"✅ Dispatched packets to all {success_col_count} colleges!")
 
 st.divider()
 
@@ -408,12 +406,12 @@ else:
                 
                 if b3.button("✉️ Send TPO", key=f"cmail_{idx}", use_container_width=True):
                     if not app_password:
-                        st.warning("Enter App Password.")
+                        st.warning("Enter App Password in sidebar.")
                     else:
                         with st.spinner("Dispatching..."):
                             try:
                                 send_college_email(c_name, c_email, c_students, report_month, sender_email, app_password)
-                                st.success("Delivered!")
+                                st.success(f"Delivered to {c_email}!")
                             except Exception as e:
                                 st.error(f"Error: {e}")
 
@@ -443,8 +441,12 @@ for idx, s in enumerate(filtered_students):
             st.caption("Overall Score")
             
         with row_c5:
+            clean_phone = re.sub(r'[^0-9]', '', str(s['ParentMobile']))
+            if len(clean_phone) == 10:
+                clean_phone = "91" + clean_phone
+                
             wa_text = f"*INFOBEANS FOUNDATION - Progress Report*\n\nDear Parent,\nProgress Report for *{s['StudentName']}* ({s['RollNo']}), *{s['CollegeName']}* for {report_month}:\n- Batch: {s['Batch']} ({s['Year']})\n- Attendance: {s['AttendedClasses']}/{s['TotalClasses']} ({s['AttendancePct']}%)\n- Technical: {s['TechnicalPct']}%\n- Soft Skills: {s['SoftSkillsPct']}%\n- Overall: {s['OverallScore']}%\n\nWarm regards,\n*InfoBeans Foundation Team*"
-            wa_url = f"https://wa.me/91{s['ParentMobile']}?text={urllib.parse.quote(wa_text)}"
+            wa_url = f"https://wa.me/{clean_phone}?text={urllib.parse.quote(wa_text)}"
             
             st.markdown(f'<a href="{wa_url}" target="_blank" style="display:block; text-align:center; background-color:#25D366; color:white; font-weight:bold; font-size:12px; padding:6px; border-radius:6px; text-decoration:none; margin-bottom:6px;">💬 WhatsApp Message</a>', unsafe_allow_html=True)
             
