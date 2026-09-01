@@ -59,12 +59,13 @@
           <input type="text" id="reportMonth" value="September 2026" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-[#EA1B3D]" />
         </div>
         <div>
-          <label class="text-xs font-semibold text-slate-600">Sender Gmail (For Colleges)</label>
+          <label class="text-xs font-semibold text-slate-600">Sender Gmail Address</label>
           <input type="email" id="senderEmail" value="pavanipandit64@gmail.com" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-[#EA1B3D]" />
         </div>
         <div>
-          <label class="text-xs font-semibold text-slate-600">Gmail App Password</label>
-          <input type="password" id="appPassword" placeholder="•••• •••• •••• ••••" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono-data text-slate-800 outline-none focus:border-[#EA1B3D]" />
+          <label class="text-xs font-semibold text-slate-600">16-Digit App Password</label>
+          <input type="password" id="appPassword" placeholder="e.g. abcd efgh ijkl mnop" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono-data text-slate-800 outline-none focus:border-[#EA1B3D]" />
+          <span class="text-[10px] text-slate-400 block mt-1">Generate from: Google Account &gt; Security &gt; App Passwords</span>
         </div>
       </div>
 
@@ -88,7 +89,7 @@
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
             Master Dispatch Operations
           </h2>
-          <p id="statusMsg" class="text-xs text-slate-500 mt-1 font-medium">Upload batch file to unlock bulk WhatsApp & College dispatch.</p>
+          <p id="statusMsg" class="text-xs text-slate-600 mt-1 font-semibold">Upload batch file to unlock bulk WhatsApp & College dispatch.</p>
         </div>
 
         <div class="flex flex-wrap items-center gap-2.5">
@@ -238,7 +239,7 @@
       const file = document.getElementById('excelFile').files[0];
       if (!file) return;
       document.getElementById('fileLabel').innerText = file.name;
-      document.getElementById('statusMsg').innerText = "Processing batches and phone records...";
+      document.getElementById('statusMsg').innerText = "Processing workbook...";
 
       const formData = new FormData();
       formData.append('file', file);
@@ -445,19 +446,29 @@
     function dispatchAllWhatsApp() {
       const list = getFilteredRecords();
       if (list.length === 0) return alert('No students found in filter.');
-      alert(`Opening WhatsApp dispatch queue for ${list.length} parents sequentially.`);
       
-      list.forEach((s, i) => {
-        let mobile = (s.ParentMobile || '').toString().replace(/\D/g, '');
-        if (mobile) {
-          if (mobile.length === 10) mobile = '91' + mobile;
-          setTimeout(() => {
-            const msg = `*INFOBEANS FOUNDATION - Progress Report*\nStudent: *${s.StudentName}* (${s.RollNo})\nCollege: ${s.CollegeName}\nBatch: ${s.Batch}\nAttendance: ${s.AttendancePct}%\nTechnical: ${s.TechnicalPct}%\nSoft Skills: ${s.SoftSkillsPct}%\nOverall: ${s.OverallScore}%\n\nRegards,\nInfoBeans Foundation`;
-            window.open(`https://wa.me/${mobile}?text=${encodeURIComponent(msg)}`, '_blank');
-          }, i * 900);
+      let index = 0;
+      const nextWA = () => {
+        if (index >= list.length) {
+          document.getElementById('statusMsg').innerText = "All WhatsApp chats opened!";
+          return;
         }
-      });
-      document.getElementById('statusMsg').innerText = `Dispatched WhatsApp queue.`;
+        const s = list[index];
+        let mobile = (s.ParentMobile || '').toString().replace(/\D/g, '');
+        if (mobile.length === 10) mobile = '91' + mobile;
+        
+        const msg = `*INFOBEANS FOUNDATION - Progress Report*\nStudent: *${s.StudentName}* (${s.RollNo})\nCollege: ${s.CollegeName}\nBatch: ${s.Batch}\nAttendance: ${s.AttendancePct}%\nTechnical: ${s.TechnicalPct}%\nSoft Skills: ${s.SoftSkillsPct}%\nOverall: ${s.OverallScore}%\n\nRegards,\nInfoBeans Foundation`;
+        
+        document.getElementById('statusMsg').innerText = `Opening WhatsApp for ${s.StudentName} (${index+1}/${list.length})...`;
+        window.open(`https://wa.me/${mobile}?text=${encodeURIComponent(msg)}`, '_blank');
+        index++;
+        if (index < list.length) {
+          setTimeout(nextWA, 1200);
+        }
+      };
+      
+      // Request permission once then trigger sequential opens
+      nextWA();
     }
 
     async function downloadIndividualPdf(idx) {
@@ -481,14 +492,24 @@
       const app_password = document.getElementById('appPassword').value;
       if (!sender_email || !app_pwd_check(app_password)) return;
 
-      const res = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ student, config: { sender_email, app_password } })
-      });
-      const data = await res.json();
-      if (data.success) alert(`Report sent to parent: ${student.ParentEmail}`);
-      else alert('Failed: ' + data.error);
+      document.getElementById('statusMsg').innerText = `Sending email to ${student.StudentName}...`;
+      try {
+        const res = await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ student, config: { sender_email, app_password } })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('statusMsg').innerText = `Sent to ${data.to}`;
+          alert(`Report successfully delivered to: ${data.to}`);
+        } else {
+          document.getElementById('statusMsg').innerText = `Failed: ${data.error}`;
+          alert('Failed to send: ' + data.error);
+        }
+      } catch (err) {
+        alert("Server error: " + err);
+      }
     }
 
     async function dispatchToAllParents() {
@@ -498,16 +519,29 @@
       if (!sender_email || !app_pwd_check(app_password)) return;
       if (!confirm(`Dispatch individual PDF reports to ${list.length} parents via Email?`)) return;
 
+      let successCount = 0;
       for (let i = 0; i < list.length; i++) {
-        document.getElementById('statusMsg').innerText = `Sending parent email ${i+1}/${list.length}...`;
-        await fetch('/api/send-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ student: list[i], config: { sender_email, app_password } })
-        });
+        document.getElementById('statusMsg').innerText = `Sending email ${i+1}/${list.length} (${list[i].StudentName})...`;
+        try {
+          const res = await fetch('/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ student: list[i], config: { sender_email, app_password } })
+          });
+          const data = await res.json();
+          if (data.success) {
+            successCount++;
+          } else {
+            alert(`Error on student ${list[i].StudentName}: ${data.error}`);
+            break;
+          }
+        } catch (e) {
+          alert(`Connection failed on student ${list[i].StudentName}: ${e}`);
+          break;
+        }
       }
-      document.getElementById('statusMsg').innerText = "All parent emails dispatched!";
-      alert("All parent progress reports sent successfully.");
+      document.getElementById('statusMsg').innerText = `Email dispatch finished. ${successCount}/${list.length} delivered.`;
+      alert(`Email Batch Finished! Delivered ${successCount} reports.`);
     }
 
     async function downloadCollegeSinglePDF(college) {
@@ -543,15 +577,25 @@
       const app_password = document.getElementById('appPassword').value;
       if (!sender_email || !app_pwd_check(app_password)) return;
 
+      document.getElementById('statusMsg').innerText = `Sending consolidated packet to ${college}...`;
       const students = getFilteredRecords().filter(s => s.CollegeName === college);
-      const res = await fetch('/api/send-college-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ college, college_email, students, config: { sender_email, app_password } })
-      });
-      const data = await res.json();
-      if (data.success) alert(`Consolidated PDF + Excel sheet sent to ${college} (${college_email})`);
-      else alert('Failed: ' + data.error);
+      try {
+        const res = await fetch('/api/send-college-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ college, college_email, students, config: { sender_email, app_password } })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('statusMsg').innerText = `Delivered to ${college}`;
+          alert(`Consolidated PDF + Excel sheet delivered to ${college} (${college_email})`);
+        } else {
+          document.getElementById('statusMsg').innerText = `Failed: ${data.error}`;
+          alert('Failed: ' + data.error);
+        }
+      } catch (e) {
+        alert("Server error: " + e);
+      }
     }
 
     async function dispatchToAllColleges() {
@@ -568,19 +612,32 @@
         const colStudents = list.filter(s => s.CollegeName === col);
         const tpoEmail = colStudents.find(s => s.CollegeEmail)?.CollegeEmail || 'pavanipandit64@gmail.com';
 
-        document.getElementById('statusMsg').innerText = `Sending institution ${i+1}/${uniqueColleges.length}...`;
-        await fetch('/api/send-college-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ college: col, college_email: tpoEmail, students: colStudents, config: { sender_email, app_password } })
-        });
+        document.getElementById('statusMsg').innerText = `Sending institution ${i+1}/${uniqueColleges.length} (${col})...`;
+        try {
+          const res = await fetch('/api/send-college-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ college: col, college_email: tpoEmail, students: colStudents, config: { sender_email, app_password } })
+          });
+          const data = await res.json();
+          if (!data.success) {
+            alert(`Error on ${col}: ${data.error}`);
+            break;
+          }
+        } catch (e) {
+          alert(`Failed on ${col}: ${e}`);
+          break;
+        }
       }
-      document.getElementById('statusMsg').innerText = "Bulk dispatch complete. All college packets sent.";
+      document.getElementById('statusMsg').innerText = "All college packets dispatched.";
       alert("All college dispatches completed successfully.");
     }
 
     function app_pwd_check(pwd) {
-      if (!pwd) { alert('Please enter your 16-digit Gmail App Password in the sidebar.'); return false; }
+      if (!pwd || pwd.length < 10) { 
+        alert('Please enter your 16-character Gmail App Password (not your regular Gmail password) in the sidebar.'); 
+        return false; 
+      }
       return true;
     }
   </script>
