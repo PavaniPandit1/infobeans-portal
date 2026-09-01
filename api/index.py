@@ -114,7 +114,7 @@ def generate_college_summary_pdf(college_name, students):
     avg_tech = round(sum(s.get('TechnicalPct', 0) for s in students) / (total or 1), 1)
     avg_soft = round(sum(s.get('SoftSkillsPct', 0) for s in students) / (total or 1), 1)
 
-    elements.append(Paragraph(f"<b>INFOBEANS FOUNDATION - COLLEGE PERFORMANCE REPORT</b>", title_style))
+    elements.append(Paragraph(f"<b>INFOBEANS FOUNDATION - COLLEGE CONSOLIDATED REPORT</b>", title_style))
     elements.append(Paragraph(f"<b>Institution:</b> {college_name} | <b>Total Enrolled:</b> {total} (3rd Year: {third_yr}, 4th Year: {fourth_yr}) | <b>Avg Attendance:</b> {avg_att}% | <b>Avg Tech:</b> {avg_tech}% | <b>Avg Soft Skills:</b> {avg_soft}%", sub_style))
     elements.append(Spacer(1, 10))
 
@@ -168,7 +168,7 @@ def parse_excel():
                 row_dict = {str(k).strip(): v for k, v in row.to_dict().items()}
                 
                 name = str(row_dict.get('Student Name') or row_dict.get('Name') or f"Student {idx+1}")
-                email = str(row_dict.get('Parent Email') or row_dict.get('Email') or '')
+                email = str(row_dict.get('Parent Email') or row_dict.get('Email') or 'pavanipandit64@gmail.com')
                 mobile = str(row_dict.get('Parent Mobile') or row_dict.get('Mobile') or row_dict.get('Phone') or '7999143958')
                 college = str(row_dict.get('College Name') or row_dict.get('College') or 'Unassigned College')
                 college_email = str(row_dict.get('College Email') or row_dict.get('TPO Email') or 'pavanipandit64@gmail.com')
@@ -248,21 +248,21 @@ def send_email():
     payload = request.json or {}
     student = payload.get('student', {})
     config = payload.get('config', {})
-    sender_email = config.get('sender_email')
-    app_pwd = config.get('app_password')
-    target_email = student.get('ParentEmail') or 'pavanipandit64@gmail.com'
+    sender_email = (config.get('sender_email') or '').strip()
+    app_pwd = (config.get('app_password') or '').replace(" ", "").strip()
+    target_email = (student.get('ParentEmail') or 'pavanipandit64@gmail.com').strip()
 
     if not sender_email or not app_pwd:
-        return jsonify({'error': 'Sender Gmail or App Password missing'}), 400
+        return jsonify({'error': 'Please enter Sender Gmail and 16-character App Password in the sidebar.'}), 400
 
     try:
         pdf_buf = generate_individual_pdf(student)
         msg = MIMEMultipart()
         msg['From'] = f"InfoBeans Foundation <{sender_email}>"
         msg['To'] = target_email
-        msg['Subject'] = f"Monthly Progress Report - {student.get('StudentName')} ({student.get('RollNo')})"
+        msg['Subject'] = f"Student Progress Report - {student.get('StudentName')} ({student.get('RollNo')})"
 
-        body = f"""Dear Parent,\n\nPlease find attached the official monthly academic progress report of {student.get('StudentName')} ({student.get('RollNo')}), {student.get('CollegeName')}.\n\nBatch: {student.get('Batch')} | Year: {student.get('Year')}\nAttendance: {student.get('AttendedClasses')} / {student.get('TotalClasses')} ({student.get('AttendancePct')}%)\nTechnical Score: {student.get('TechnicalMarks')}/100 ({student.get('TechnicalPct')}%)\nSoft Skills Score: {student.get('SoftSkillsMarks')}/100 ({student.get('SoftSkillsPct')}%)\nOverall Score: {student.get('OverallScore')}%\n\nRegards,\nInfoBeans Foundation"""
+        body = f"""Dear Parent,\n\nPlease find attached the official monthly academic progress report of {student.get('StudentName')} ({student.get('RollNo')}), {student.get('CollegeName')}.\n\nBatch: {student.get('Batch')} | Academic Year: {student.get('Year')}\nAttendance: {student.get('AttendedClasses')}/{student.get('TotalClasses')} ({student.get('AttendancePct')}%)\nTechnical Score: {student.get('TechnicalMarks')}/100 ({student.get('TechnicalPct')}%)\nSoft Skills Score: {student.get('SoftSkillsMarks')}/100 ({student.get('SoftSkillsPct')}%)\nOverall Score: {student.get('OverallScore')}%\n\nWarm regards,\nInfoBeans Foundation Team"""
         msg.attach(MIMEText(body, 'plain'))
 
         part = MIMEBase('application', 'octet-stream')
@@ -271,28 +271,30 @@ def send_email():
         part.add_header('Content-Disposition', f'attachment; filename="{student.get("RollNo")}_Report.pdf"')
         msg.attach(part)
 
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(sender_email, app_pwd.replace(" ", ""))
+        # Port 465 SSL connection for Vercel stability
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=20)
+        server.login(sender_email, app_pwd)
         server.send_message(msg)
         server.quit()
-        return jsonify({'success': True})
+        return jsonify({'success': True, 'to': target_email})
+    except smtplib.SMTPAuthenticationError:
+        return jsonify({'error': 'Gmail Authentication Failed! Check your 16-digit App Password & 2-Step Verification.'}), 401
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': f"SMTP Error: {str(e)}"}), 500
 
 @app.route('/api/send-college-email', methods=['POST'])
 def send_college_email():
     payload = request.json or {}
     college = payload.get('college', 'College')
-    college_email = payload.get('college_email') or 'pavanipandit64@gmail.com'
+    college_email = (payload.get('college_email') or 'pavanipandit64@gmail.com').strip()
     students = payload.get('students', [])
     config = payload.get('config', {})
     
-    sender_email = config.get('sender_email')
-    app_pwd = config.get('app_password')
+    sender_email = (config.get('sender_email') or '').strip()
+    app_pwd = (config.get('app_password') or '').replace(" ", "").strip()
 
     if not sender_email or not app_pwd:
-        return jsonify({'error': 'Sender Gmail or App Password missing'}), 400
+        return jsonify({'error': 'Sender Gmail or 16-character App Password missing in sidebar.'}), 400
 
     try:
         pdf_buf = generate_college_summary_pdf(college, students)
@@ -325,14 +327,16 @@ def send_college_email():
         part2.add_header('Content-Disposition', f'attachment; filename="{college.replace(" ", "_")}_Student_Records.xlsx"')
         msg.attach(part2)
 
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(sender_email, app_pwd.replace(" ", ""))
+        # Port 465 SSL connection
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=25)
+        server.login(sender_email, app_pwd)
         server.send_message(msg)
         server.quit()
-        return jsonify({'success': True})
+        return jsonify({'success': True, 'to': college_email})
+    except smtplib.SMTPAuthenticationError:
+        return jsonify({'error': 'Gmail Authentication Failed! Check your 16-digit App Password.'}), 401
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': f"SMTP Error: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
