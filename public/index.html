@@ -36,7 +36,7 @@
         </div>
         <div>
           <h1 class="text-base font-extrabold text-slate-900 leading-none">InfoBeans Portal</h1>
-          <p class="text-xs text-slate-400 font-medium mt-1">Multi-Channel WhatsApp & SMS</p>
+          <p class="text-xs text-slate-400 font-medium mt-1">Multi-Channel WhatsApp & Email</p>
         </div>
       </div>
 
@@ -365,7 +365,7 @@
         const colStudents = list.filter(s => s.CollegeName === college);
         const y3 = colStudents.filter(s => s.Year.includes('3')).length;
         const y4 = colStudents.filter(s => s.Year.includes('4')).length;
-        const tpoEmail = colStudents.find(s => s.CollegeEmail)?.CollegeEmail || 'tpo@college.ac.in';
+        const tpoEmail = colStudents.find(s => s.CollegeEmail)?.CollegeEmail || 'pavanipandit64@gmail.com';
 
         return `
           <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/40 hover:bg-white hover:border-slate-300 transition shadow-sm flex flex-col justify-between space-y-3">
@@ -430,7 +430,6 @@
       }).join('');
     }
 
-    // Direct WhatsApp link trigger
     function sendParentWhatsApp(idx) {
       const s = rawStudents[idx];
       let mobile = (s.ParentMobile || '').toString().replace(/\D/g, '');
@@ -448,7 +447,6 @@
       if (list.length === 0) return alert('No students found in filter.');
       alert(`Opening WhatsApp dispatch queue for ${list.length} parents sequentially.`);
       
-      let count = 0;
       list.forEach((s, i) => {
         let mobile = (s.ParentMobile || '').toString().replace(/\D/g, '');
         if (mobile) {
@@ -456,11 +454,10 @@
           setTimeout(() => {
             const msg = `*INFOBEANS FOUNDATION - Progress Report*\nStudent: *${s.StudentName}* (${s.RollNo})\nCollege: ${s.CollegeName}\nBatch: ${s.Batch}\nAttendance: ${s.AttendancePct}%\nTechnical: ${s.TechnicalPct}%\nSoft Skills: ${s.SoftSkillsPct}%\nOverall: ${s.OverallScore}%\n\nRegards,\nInfoBeans Foundation`;
             window.open(`https://wa.me/${mobile}?text=${encodeURIComponent(msg)}`, '_blank');
-          }, i * 800);
-          count++;
+          }, i * 900);
         }
       });
-      document.getElementById('statusMsg').innerText = `Dispatched ${count} WhatsApp chats.`;
+      document.getElementById('statusMsg').innerText = `Dispatched WhatsApp queue.`;
     }
 
     async function downloadIndividualPdf(idx) {
@@ -499,18 +496,18 @@
       const sender_email = document.getElementById('senderEmail').value;
       const app_password = document.getElementById('appPassword').value;
       if (!sender_email || !app_pwd_check(app_password)) return;
-      if (!confirm(`Dispatch individual PDF progress reports to all ${list.length} filtered parents via Email?`)) return;
+      if (!confirm(`Dispatch individual PDF reports to ${list.length} parents via Email?`)) return;
 
       for (let i = 0; i < list.length; i++) {
-        document.getElementById('statusMsg').innerText = `Sending parent email ${i+1} of ${list.length}...`;
+        document.getElementById('statusMsg').innerText = `Sending parent email ${i+1}/${list.length}...`;
         await fetch('/api/send-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ student: list[i], config: { sender_email, app_password } })
         });
       }
-      document.getElementById('statusMsg').innerText = "Bulk email dispatch complete.";
-      alert("All parent emails sent successfully.");
+      document.getElementById('statusMsg').innerText = "All parent emails dispatched!";
+      alert("All parent progress reports sent successfully.");
     }
 
     async function downloadCollegeSinglePDF(college) {
@@ -571,7 +568,7 @@
         const colStudents = list.filter(s => s.CollegeName === col);
         const tpoEmail = colStudents.find(s => s.CollegeEmail)?.CollegeEmail || 'pavanipandit64@gmail.com';
 
-        document.getElementById('statusMsg').innerText = `Sending institution ${i+1} of ${uniqueColleges.length}...`;
+        document.getElementById('statusMsg').innerText = `Sending institution ${i+1}/${uniqueColleges.length}...`;
         await fetch('/api/send-college-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
