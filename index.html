@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InfoBeans Foundation - Progress Report Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-[#F8F9FB] text-slate-800 font-sans min-h-screen flex flex-col md:flex-row">
+
+  <!-- Streamlit Style Sidebar -->
+  <aside class="w-full md:w-80 bg-white border-r border-slate-200 p-6 flex flex-col justify-between shadow-sm">
+    <div class="space-y-6">
+      <div class="flex items-center space-x-3 pb-4 border-b border-slate-100">
+        <div class="w-10 h-10 bg-[#EA1B3D] text-white font-bold flex items-center justify-center rounded-lg shadow-sm text-lg">
+          IB
+        </div>
+        <div>
+          <h1 class="font-bold text-slate-900 leading-tight">InfoBeans</h1>
+          <p class="text-xs text-slate-500 font-medium">Reporting Portal</p>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">1. Upload Dataset (.xlsx)</label>
+        <div class="border-2 border-dashed border-slate-200 hover:border-[#EA1B3D] rounded-xl p-4 text-center transition bg-slate-50/50 cursor-pointer relative">
+          <input type="file" id="excelFile" accept=".xlsx, .xls" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onchange="updateFileName()" />
+          <i data-lucide="upload-cloud" class="w-8 h-8 text-slate-400 mx-auto mb-2"></i>
+          <p id="fileLabel" class="text-xs text-slate-600 font-medium truncate">Choose Excel File</p>
+        </div>
+        <button onclick="parseFile()" class="w-full mt-3 bg-[#EA1B3D] hover:bg-rose-700 text-white font-semibold py-2 px-4 rounded-lg text-sm shadow-sm transition flex items-center justify-center space-x-2">
+          <i data-lucide="play" class="w-4 h-4"></i>
+          <span>Process Workbook</span>
+        </button>
+      </div>
+
+      <div class="space-y-3 pt-4 border-t border-slate-100">
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500">2. Dispatch Settings</label>
+        <div>
+          <label class="text-[11px] text-slate-500 font-medium">Evaluation Month</label>
+          <input type="text" id="reportMonth" value="September 2026" class="w-full mt-1 border border-slate-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-[#EA1B3D]/20 focus:border-[#EA1B3D]" />
+        </div>
+        <div>
+          <label class="text-[11px] text-slate-500 font-medium">Sender Gmail</label>
+          <input type="email" id="senderEmail" value="pavanipandit64@gmail.com" class="w-full mt-1 border border-slate-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-[#EA1B3D]/20 focus:border-[#EA1B3D]" />
+        </div>
+        <div>
+          <label class="text-[11px] text-slate-500 font-medium">Gmail App Password</label>
+          <input type="password" id="appPassword" placeholder="16-digit App Password" class="w-full mt-1 border border-slate-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-[#EA1B3D]/20 focus:border-[#EA1B3D]" />
+        </div>
+      </div>
+    </div>
+
+    <div class="pt-6 border-t border-slate-100">
+      <button onclick="sendFiltered()" id="btnBulkSend" disabled class="w-full bg-[#2F2F39] hover:bg-slate-900 text-white font-semibold py-2.5 px-4 rounded-lg text-xs tracking-wide shadow-sm transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
+        <i data-lucide="send" class="w-4 h-4"></i>
+        <span>Dispatch Batch Reports</span>
+      </button>
+      <p id="statusMsg" class="text-[11px] text-slate-400 text-center mt-2"></p>
+    </div>
+  </aside>
+
+  <!-- Main Area -->
+  <main class="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl mx-auto w-full space-y-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Total Students</p>
+        <p id="kpiTotal" class="text-2xl font-bold text-slate-800 mt-1">0</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Avg Attendance</p>
+        <p id="kpiAttendance" class="text-2xl font-bold text-[#2F2F39] mt-1">0%</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Avg Technical</p>
+        <p id="kpiTech" class="text-2xl font-bold text-[#EA1B3D] mt-1">0%</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Avg Soft Skills</p>
+        <p id="kpiSoft" class="text-2xl font-bold text-emerald-600 mt-1">0%</p>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+      <div class="flex items-center space-x-2 overflow-x-auto" id="batchTabs">
+        <button class="px-4 py-1.5 text-xs font-bold rounded-full bg-[#2F2F39] text-white">All Records</button>
+      </div>
+      <div class="relative">
+        <input type="text" id="searchInput" oninput="filterTable()" placeholder="Search student name or roll..." class="text-xs border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 outline-none focus:ring-1 focus:ring-[#EA1B3D] w-60" />
+        <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider border-b border-slate-200">
+            <tr>
+              <th class="px-5 py-3.5">Roll No</th>
+              <th class="px-5 py-3.5">Student Name</th>
+              <th class="px-5 py-3.5">Batch</th>
+              <th class="px-5 py-3.5 text-center">Classes Attended</th>
+              <th class="px-5 py-3.5 text-center">Tech Marks</th>
+              <th class="px-5 py-3.5 text-center">Soft Skills</th>
+              <th class="px-5 py-3.5 text-center">Overall</th>
+              <th class="px-5 py-3.5 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="studentTableBody" class="divide-y divide-slate-100">
+            <tr>
+              <td colspan="8" class="px-5 py-12 text-center text-slate-400">
+                Upload your batch excel sheet on the sidebar to inspect records.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    let allStudents = [];
+    let activeBatch = 'ALL';
+
+    function updateFileName() {
+      const file = document.getElementById('excelFile').files[0];
+      if (file) {
+        document.getElementById('fileLabel').innerText = file.name;
+      }
+    }
+
+    async function parseFile() {
+      const file = document.getElementById('excelFile').files[0];
+      if (!file) return alert('Please choose an Excel (.xlsx) file first');
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      document.getElementById('statusMsg').innerText = "Processing workbook...";
+
+      try {
+        const res = await fetch('/api/parse', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.students) {
+          allStudents = data.students;
+          document.getElementById('btnBulkSend').disabled = false;
+          document.getElementById('statusMsg').innerText = `${allStudents.length} records loaded`;
+          buildBatchTabs();
+          renderDashboard();
+        } else {
+          alert('Error: ' + (data.error || 'Check Excel headers'));
+        }
+      } catch (err) {
+        alert('Server request failed: ' + err);
+      }
+    }
+
+    function buildBatchTabs() {
+      const batches = ['ALL', ...new Set(allStudents.map(s => s.Batch))];
+      const tabsContainer = document.getElementById('batchTabs');
+      
+      tabsContainer.innerHTML = batches.map(b => `
+        <button onclick="setBatch('${b}')" class="px-3 py-1 text-xs font-semibold rounded-lg transition ${activeBatch === b ? 'bg-[#2F2F39] text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">
+          ${b === 'ALL' ? 'All Batches' : b}
+        </button>
+      `).join('');
+    }
+
+    function setBatch(batchName) {
+      activeBatch = batchName;
+      buildBatchTabs();
+      renderDashboard();
+    }
+
+    function getFilteredList() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      return allStudents.filter(s => {
+        const matchesBatch = (activeBatch === 'ALL' || s.Batch === activeBatch);
+        const matchesQuery = s.StudentName.toLowerCase().includes(query) || s.RollNo.toLowerCase().includes(query);
+        return matchesBatch && matchesQuery;
+      });
+    }
+
+    function filterTable() {
+      renderDashboard();
+    }
+
+    function renderDashboard() {
+      const list = getFilteredList();
+
+      if (list.length > 0) {
+        const avgAtt = (list.reduce((acc, s) => acc + (s.AttendancePct || 0), 0) / list.length).toFixed(1);
+        const avgTech = (list.reduce((acc, s) => acc + (s.TechnicalPct || 0), 0) / list.length).toFixed(1);
+        const avgSoft = (list.reduce((acc, s) => acc + (s.SoftSkillsPct || 0), 0) / list.length).toFixed(1);
+
+        document.getElementById('kpiTotal').innerText = list.length;
+        document.getElementById('kpiAttendance').innerText = `${avgAtt}%`;
+        document.getElementById('kpiTech').innerText = `${avgTech}%`;
+        document.getElementById('kpiSoft').innerText = `${avgSoft}%`;
+      } else {
+        document.getElementById('kpiTotal').innerText = '0';
+        document.getElementById('kpiAttendance').innerText = '0%';
+        document.getElementById('kpiTech').innerText = '0%';
+        document.getElementById('kpiSoft').innerText = '0%';
+      }
+
+      const tbody = document.getElementById('studentTableBody');
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="px-5 py-8 text-center text-slate-400">No matching student records found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map((s) => {
+        const originalIdx = allStudents.findIndex(x => x.id === s.id);
+        return `
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="px-5 py-3 font-mono font-bold text-slate-700">${s.RollNo}</td>
+            <td class="px-5 py-3">
+              <div class="font-semibold text-slate-900">${s.StudentName}</div>
+              <div class="text-[10px] text-slate-400 truncate">${s.ParentEmail || 'No Email'}</div>
+            </td>
+            <td class="px-5 py-3 text-slate-600 font-medium">${s.Batch}</td>
+            <td class="px-5 py-3 text-center">
+              <span class="font-semibold text-slate-700">${s.AttendedClasses}/${s.TotalClasses}</span>
+              <span class="text-[10px] text-slate-400 block">${s.AttendancePct}%</span>
+            </td>
+            <td class="px-5 py-3 text-center">
+              <span class="font-semibold text-slate-700">${s.TechnicalMarks}</span>
+              <span class="text-[10px] text-rose-500 block">${s.TechnicalPct}%</span>
+            </td>
+            <td class="px-5 py-3 text-center">
+              <span class="font-semibold text-slate-700">${s.SoftSkillsMarks}</span>
+              <span class="text-[10px] text-emerald-600 block">${s.SoftSkillsPct}%</span>
+            </td>
+            <td class="px-5 py-3 text-center font-bold text-[#EA1B3D]">
+              ${s.OverallScore}%
+            </td>
+            <td class="px-5 py-3 text-right space-x-1.5 whitespace-nowrap">
+              <button onclick="downloadPdf(${originalIdx})" class="px-2.5 py-1 text-slate-700 hover:bg-slate-100 border border-slate-200 rounded font-medium transition text-[11px]">PDF</button>
+              <button onclick="sendSingleEmail(${originalIdx})" class="px-2.5 py-1 bg-[#EA1B3D] hover:bg-rose-700 text-white rounded font-medium transition text-[11px]">Send</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    async function downloadPdf(idx) {
+      const student = allStudents[idx];
+      student.ReportMonth = document.getElementById('reportMonth').value || 'September 2026';
+      
+      const res = await fetch('/api/download-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(student)
+      });
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${student.RollNo}_Report.pdf`;
+      a.click();
+    }
+
+    async function sendSingleEmail(idx) {
+      const student = allStudents[idx];
+      const sender_email = document.getElementById('senderEmail').value;
+      const app_password = document.getElementById('appPassword').value;
+      const report_month = document.getElementById('reportMonth').value;
+
+      if (!sender_email || !app_password) return alert('Enter Sender Gmail & App Password on Sidebar');
+      
+      const res = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ student, config: { sender_email, app_password, report_month } })
+      });
+      const data = await res.json();
+      if (data.success) alert(`Success: Dispatched to ${student.ParentEmail}`);
+      else alert('Failed: ' + data.error);
+    }
+
+    async function sendFiltered() {
+      const list = getFilteredList();
+      const sender_email = document.getElementById('senderEmail').value;
+      const app_password = document.getElementById('appPassword').value;
+
+      if (!sender_email || !app_password) return alert('Enter Sender Gmail & App Password on Sidebar');
+      if (!confirm(`Are you sure you want to send reports to ${list.length} students?`)) return;
+
+      for (let i = 0; i < list.length; i++) {
+        document.getElementById('statusMsg').innerText = `Sending ${i+1}/${list.length}...`;
+        await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ student: list[i], config: { sender_email, app_password, report_month: document.getElementById('reportMonth').value } })
+        });
+      }
+      document.getElementById('statusMsg').innerText = "All reports dispatched successfully!";
+      alert('Batch dispatch execution finished!');
+    }
+  </script>
+</body>
+</html>
