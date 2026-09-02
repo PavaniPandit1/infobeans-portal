@@ -858,12 +858,25 @@ st.markdown(
 
 if uploaded_file is None:
 
-    st.info(
-        "👆 Please upload your Excel file from the sidebar to activate."
+    st.markdown(
+        """
+        <div style="
+            background-color: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-left: 5px solid #EA1B3D;
+            padding: 15px;
+            border-radius: 6px;
+            color: #1E293B;
+            font-size: 15px;
+            margin-top: 15px;
+        ">
+            <b>Please upload your Excel file from the sidebar to activate.</b>
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
     st.stop()
-
 
 # ============================================================
 # DATA PROCESSING
